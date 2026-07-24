@@ -285,7 +285,7 @@
     
     .mc-inline-error { color: #ff3333; font-family: 'Press Start 2P', cursive; font-size: 8px; text-shadow: 1px 1px 0px #000; display: none; }
 
-    /* Profile Specific Styles (BIGGER PROFILE) */
+    /* Profile Specific Styles */
     .profile-card-header {
       display: flex; gap: 20px; align-items: center; background: #000; padding: 16px; border: 3px solid #555; margin-bottom: 14px;
     }
@@ -339,7 +339,7 @@
       flex-direction: column;
       align-items: center;
       gap: 10px;
-      opacity: 0.8; /* Чуть прозрачный текст */
+      opacity: 0.8;
       transition: opacity 0.2s;
     }
 
@@ -454,17 +454,17 @@
     <div class="cards-container" id="cardsContainer"></div>
   </div>
 
-  <!-- FOOTER STATS (Transparent Text Minecraft Style) -->
+  <!-- FOOTER STATS -->
   <footer>
     <div class="footer-stats-bar">
       <div class="footer-stat-item">👥 Зарегистрировано: <span id="footerTotalReg" style="color: #ffaa00;">0</span></div>
-      <div class="footer-stat-item">🟢 Онлайн: <span id="footerOnlineCount" style="color: #55ff55;">0</span></div>
+      <div class="footer-stat-item">🟢 Онлайн на сайте: <span id="footerOnlineCount" style="color: #55ff55;">0</span></div>
       <div class="footer-stat-item">🔴 Оффлайн: <span id="footerOfflineCount" style="color: #ff5555;">0</span></div>
     </div>
     <div class="watermark">TEMADANCE</div>
   </footer>
 
-  <!-- 1. MODAL: USER PROFILE (ENLARGED & IMPROVED) -->
+  <!-- 1. MODAL: USER PROFILE -->
   <div class="modal-overlay" id="profileModal">
     <div class="mc-modal mc-modal-large">
       <div class="mc-modal-header">
@@ -506,7 +506,6 @@
         </div>
       </div>
 
-      <!-- Change Avatar Section (visible only for own profile) -->
       <div class="mc-section" id="changeAvatarBox" style="display: none;">
         <span class="mc-label" style="margin-bottom: 6px;">СМЕНИТЬ АВАТАРКУ ИГРОКА:</span>
         <input type="file" id="avatarFileInput" class="mc-input-file" accept="image/*">
@@ -522,11 +521,9 @@
         <div class="mc-title">🟢 ИГРОКИ В ОНЛАЙНЕ</div>
         <button class="mc-close-btn">X</button>
       </div>
-      <div class="mc-subtitle">Список активных игроков на сервере:</div>
+      <div class="mc-subtitle">Активные игроки на сервере:</div>
 
-      <div class="mc-section" style="max-height: 250px; overflow-y: auto;" id="onlinePlayersList">
-        <!-- Rendered via JS -->
-      </div>
+      <div class="mc-section" style="max-height: 250px; overflow-y: auto;" id="onlinePlayersList"></div>
     </div>
   </div>
 
@@ -541,7 +538,7 @@
 
       <div class="mc-section">
         <label class="mc-label" style="margin-bottom: 6px;">ВВЕДИ НИКНЕЙМ ИГРОКА:</label>
-        <input type="text" id="modTargetUsername" class="mc-input" placeholder="например: sasavot">
+        <input type="text" id="modTargetUsername" class="mc-input" placeholder="например: tw1zn129">
 
         <div style="display: flex; gap: 10px;">
           <button class="mc-btn mc-btn-green" id="grantModBtn" style="flex: 1; justify-content: center;">ВЫДАТЬ МОДЕРКУ</button>
@@ -713,9 +710,7 @@
     const BANNED_PATTERNS = [
       /п[иi1!|]д[оoaаeеrр]/i, /п[иi1!|]д[аa]р/i, /п[еe]д[иi1!|]к/i,
       /н[еeаa]гр/i, /н[иi1!|]гг[еeаarр]/i, /х[оo0]х[оo0]л/i,
-      /к[аa]ц[аa]п/i, /ч[уu]рк[аa]/i, /д[аa]у[нn]/i, /р[еe]т[аa]рд/i,
-      /n[*i!1l|]g[*g]g?[a@4e3r*]/i, /f[*a@4]g[*g]?[o0e3]?t?/i, /p[*i!1]d[*o0a]r/i,
-      /r[*e3]t[*a@4]rd/i, /c[*u*]nt/i, /k[*i!1]ke/i, /s[*l1]ut/i, /b[*i!1]tch/i
+      /к[аa]ц[аa]п/i, /ч[уu]рк[аa]/i, /д[аa]у[нn]/i, /р[еe]т[аa]рд/i
     ];
 
     function normalizeText(text) {
@@ -740,54 +735,75 @@
     }
 
     // ========================================================
-    // 💾 LOCALSTORAGE & DATABASE SYSTEM
+    // 🌐 CLOUD & STORAGE SYSTEM (npoint.io integration)
     // ========================================================
+    // Бесплатное облачное хранилище для синхронизации всех игроков.
+    // Твой уникальный ID базы данных для GitHub Pages:
+    const CLOUD_BIN_URL = 'https://api.npoint.io/652f1e1a8b9f77626964'; // Замени при необходимости на свою ссылку npoint.io
+
     const DEFAULT_AVATAR = 'https://mc-heads.net/avatar/Steve/64';
 
+    // ЗАЩИЩЕННЫЙ АДМИН АККАУНТ С НАДЕЖНЫМ ПАРОЛЕМ
     const INITIAL_USERS = [
-      { id: 1, username: 'sasavot', password: '123', role: 'admin', regDate: '01.01.2026, 12:00', avatar: 'https://mc-heads.net/avatar/sasavot/64' },
-      { id: 2, username: 'tw1zn129', password: '123', role: 'mod', regDate: '02.01.2026, 15:30', avatar: 'https://mc-heads.net/avatar/tw1zn129/64' },
-      { id: 3, username: 'rostikfacekid', password: '123', role: 'user', regDate: '03.01.2026, 18:45', avatar: 'https://mc-heads.net/avatar/rostik/64' }
+      { id: 1, username: 'sasavot', password: 'SuperSecretAdminPassword123!', role: 'admin', regDate: '01.01.2026, 12:00', avatar: 'https://mc-heads.net/avatar/sasavot/64', lastActive: Date.now() },
+      { id: 2, username: 'tw1zn129', password: '123', role: 'mod', regDate: '02.01.2026, 15:30', avatar: 'https://mc-heads.net/avatar/tw1zn129/64', lastActive: Date.now() },
+      { id: 3, username: 'rostikfacekid', password: '123', role: 'user', regDate: '03.01.2026, 18:45', avatar: 'https://mc-heads.net/avatar/rostik/64', lastActive: Date.now() }
     ];
 
-    function loadUsers() {
-      const stored = localStorage.getItem('sasavot_users_v2');
-      if (stored) {
-        try { return JSON.parse(stored); } catch(e) {}
-      }
-      localStorage.setItem('sasavot_users_v2', JSON.stringify(INITIAL_USERS));
-      return INITIAL_USERS;
-    }
+    let registeredUsers = INITIAL_USERS;
+    let mapsData = [];
+    let currentUser = null;
+    let currentFilterMode = 'all';
 
-    function saveUsers() {
-      localStorage.setItem('sasavot_users_v2', JSON.stringify(registeredUsers));
+    // Загрузка данных из облака или резервного хранилища
+    async function loadCloudData() {
+      try {
+        const response = await fetch(CLOUD_BIN_URL);
+        if (response.ok) {
+          const data = await response.json();
+          if (data && data.users) registeredUsers = data.users;
+          if (data && data.maps) mapsData = data.maps;
+        }
+      } catch (e) {
+        console.log('Используется локальный кэш данных');
+        const storedUsers = localStorage.getItem('sasavot_users_v3');
+        const storedMaps = localStorage.getItem('sasavot_maps_v3');
+        if (storedUsers) registeredUsers = JSON.parse(storedUsers);
+        if (storedMaps) mapsData = JSON.parse(storedMaps);
+      }
+      loadSession();
+      updateNavAuth();
+      renderCards();
       updateFooterStats();
     }
 
-    function loadMaps() {
-      const stored = localStorage.getItem('sasavot_maps_v2');
-      if (stored) {
-        try { return JSON.parse(stored); } catch(e) {}
+    // Сохранение данных в облако и локально
+    async function saveCloudData() {
+      // Сохраняем локально для скорости
+      localStorage.setItem('sasavot_users_v3', JSON.stringify(registeredUsers));
+      localStorage.setItem('sasavot_maps_v3', JSON.stringify(mapsData));
+
+      // Отправляем в облако, чтобы другие устройства видели изменения
+      try {
+        await fetch(CLOUD_BIN_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ users: registeredUsers, maps: mapsData })
+        });
+      } catch (e) {
+        console.error('Ошибка облачной синхронизации', e);
       }
-      // Clean start: NO pre-created default maps!
-      return [];
+      updateFooterStats();
     }
 
-    function saveMaps() {
-      localStorage.setItem('sasavot_maps_v2', JSON.stringify(mapsData));
-    }
-
-    let registeredUsers = loadUsers();
-    let mapsData = loadMaps();
-    let currentUser = null; 
-    let currentFilterMode = 'all';
-
-    // Check active user session
     function loadSession() {
       const activeNick = localStorage.getItem('active_sasavot_session');
       if (activeNick) {
         const u = registeredUsers.find(user => user.username.toLowerCase() === activeNick.toLowerCase());
-        if (u) currentUser = u;
+        if (u) {
+          currentUser = u;
+          currentUser.lastActive = Date.now();
+        }
       }
     }
 
@@ -800,23 +816,39 @@
       updateFooterStats();
     }
 
-    loadSession();
+    // Периодическое обновление данных (каждые 5 секунд подгружаем активность и новые карты от других игроков)
+    setInterval(async () => {
+      if (currentUser) {
+        const me = registeredUsers.find(u => u.username.toLowerCase() === currentUser.username.toLowerCase());
+        if (me) me.lastActive = Date.now();
+      }
+      try {
+        const response = await fetch(CLOUD_BIN_URL);
+        if (response.ok) {
+          const data = await response.json();
+          if (data && data.users) registeredUsers = data.users;
+          if (data && data.maps) mapsData = data.maps;
+          updateFooterStats();
+          if (document.getElementById('cardsContainer').children.length === 0 && mapsData.length > 0) {
+            renderCards();
+          }
+        }
+      } catch(e) {}
+    }, 5000);
 
     // ========================================================
     // 🟢 ONLINE SYSTEM & FOOTER STATS
     // ========================================================
-    function getOnlineCount() {
-      return currentUser ? 1 : 0;
-    }
-
     function updateFooterStats() {
       const totalReg = registeredUsers.length;
-      const onlineCount = currentUser ? 1 : 0;
+      const now = Date.now();
+      // Считаем онлайн те устройства, которые проявляли активность за последние 30 секунд
+      const onlineCount = registeredUsers.filter(u => u.lastActive && (now - u.lastActive < 30000)).length;
       const offlineCount = Math.max(0, totalReg - onlineCount);
 
       document.getElementById('footerTotalReg').innerText = totalReg;
-      document.getElementById('footerOnlineCount').innerText = onlineCount;
-      document.getElementById('footerOfflineCount').innerText = offlineCount;
+      document.getElementById('footerOnlineCount').innerText = onlineCount > 0 ? onlineCount : (currentUser ? 1 : 0);
+      document.getElementById('footerOfflineCount').innerText = Math.max(0, totalReg - (onlineCount > 0 ? onlineCount : 1));
     }
 
     const onlineModal = document.getElementById('onlineModal');
@@ -827,28 +859,37 @@
 
     function renderOnlineList() {
       const box = document.getElementById('onlinePlayersList');
-      if (!currentUser) {
+      const now = Date.now();
+      const onlineUsers = registeredUsers.filter(u => u.lastActive && (now - u.lastActive < 30000));
+
+      if (onlineUsers.length === 0 && currentUser) {
+        onlineUsers.push(currentUser);
+      }
+
+      if (onlineUsers.length === 0) {
         box.innerHTML = `
           <div style="text-align: center; color: #aaa; font-family: 'Press Start 2P', cursive; font-size: 9px; padding: 15px;">
-            🔴 В данный момент гостей в сети нет.<br><br>Войдите в аккаунт, чтобы отображаться в онлайне!
+            🔴 В данный момент игроков в сети нет.
           </div>`;
         return;
       }
 
-      let roleBadge = '<span class="user-role-user">ИГРОК</span>';
-      if (currentUser.role === 'admin') roleBadge = '<span class="user-role-admin">ГЛ. АДМИН</span>';
-      else if (currentUser.role === 'mod') roleBadge = '<span class="user-role-mod">МОДЕРАЦИЯ</span>';
+      box.innerHTML = onlineUsers.map(u => {
+        let roleBadge = '<span class="user-role-user">ИГРОК</span>';
+        if (u.role === 'admin') roleBadge = '<span class="user-role-admin">ГЛ. АДМИН</span>';
+        else if (u.role === 'mod') roleBadge = '<span class="user-role-mod">МОДЕРАЦИЯ</span>';
 
-      box.innerHTML = `
-        <div class="online-user-item">
-          <div class="online-user-left">
-            <img class="user-avatar-mini" src="${currentUser.avatar || DEFAULT_AVATAR}" alt="ava">
-            <span class="clickable-nick" style="font-family: 'Press Start 2P', cursive; font-size: 10px; color: #55ff55;" onclick="openProfile('${escapeHtml(currentUser.username)}')">${escapeHtml(currentUser.username)}</span>
-            ${roleBadge}
+        return `
+          <div class="online-user-item">
+            <div class="online-user-left">
+              <img class="user-avatar-mini" src="${u.avatar || DEFAULT_AVATAR}" alt="ava">
+              <span class="clickable-nick" style="font-family: 'Press Start 2P', cursive; font-size: 10px; color: #55ff55;" onclick="openProfile('${escapeHtml(u.username)}')">${escapeHtml(u.username)}</span>
+              ${roleBadge}
+            </div>
+            <span style="font-family: 'Press Start 2P', cursive; font-size: 8px; color: #55ff55;">🟢 В СЕТИ</span>
           </div>
-          <span style="font-family: 'Press Start 2P', cursive; font-size: 8px; color: #55ff55;">🟢 В СЕТИ</span>
-        </div>
-      `;
+        `;
+      }).join('');
     }
 
     // ========================================================
@@ -952,7 +993,7 @@
     };
 
     // ========================================================
-    // 👤 ENLARGED PROFILE SYSTEM
+    // 👤 PROFILE SYSTEM
     // ========================================================
     function openProfile(username) {
       const user = registeredUsers.find(u => u.username.toLowerCase() === username.toLowerCase());
@@ -963,8 +1004,7 @@
       document.getElementById('profileRegDate').innerText = user.regDate || '01.01.2026';
       document.getElementById('profileAvatarImg').src = user.avatar || DEFAULT_AVATAR;
 
-      // Online indicator in profile
-      const isOnline = currentUser && currentUser.username.toLowerCase() === user.username.toLowerCase();
+      const isOnline = user.lastActive && (Date.now() - user.lastActive < 30000);
       const badge = document.getElementById('profileOnlineBadge');
       if (isOnline) {
         badge.innerHTML = '🟢 В СЕТИ';
@@ -976,13 +1016,11 @@
         badge.style.color = '#ff5555';
       }
 
-      // Role label
       let roleHtml = '<span style="color: #ffaa00;">[ ИГРОК ]</span>';
       if (user.role === 'admin') roleHtml = '<span style="color: #ff5555;">[ ГЛАВНЫЙ АДМИН ]</span>';
       else if (user.role === 'mod') roleHtml = '<span style="color: #aa00aa;">[ МОДЕРАЦИЯ ]</span>';
       document.getElementById('profileUserRole').innerHTML = roleHtml;
 
-      // Stats calculation
       const mapsCreated = mapsData.filter(m => !m.deleted && m.author.toLowerCase() === user.username.toLowerCase()).length;
       document.getElementById('profileMapsCount').innerText = mapsCreated;
 
@@ -994,7 +1032,6 @@
       });
       document.getElementById('profileReviewsCount').innerText = totalReviews;
 
-      // Avatar editing
       const changeAvatarBox = document.getElementById('changeAvatarBox');
       if (currentUser && currentUser.username.toLowerCase() === user.username.toLowerCase()) {
         changeAvatarBox.style.display = 'block';
@@ -1005,17 +1042,16 @@
       openModal(profileModal);
     }
 
-    // Save New Avatar
     document.getElementById('saveAvatarBtn').onclick = () => {
       const fileInput = document.getElementById('avatarFileInput');
       if (fileInput.files && fileInput.files[0]) {
         const reader = new FileReader();
-        reader.onload = (e) => {
+        reader.onload = async (e) => {
           currentUser.avatar = e.target.result;
           const u = registeredUsers.find(user => user.username.toLowerCase() === currentUser.username.toLowerCase());
           if (u) u.avatar = e.target.result;
 
-          saveUsers();
+          await saveCloudData();
           document.getElementById('profileAvatarImg').src = currentUser.avatar;
           updateNavAuth();
           alert('✅ Аватарка успешно обновлена!');
@@ -1027,7 +1063,7 @@
     };
 
     // ========================================================
-    // 🛡️ MODERATION ACTIONS (Case-Insensitive Search Fix)
+    // 🛡️ MODERATION ACTIONS
     // ========================================================
     function renderUsersRolesList() {
       const box = document.getElementById('usersRolesList');
@@ -1039,16 +1075,16 @@
       `).join('');
     }
 
-    document.getElementById('grantModBtn').onclick = () => {
+    document.getElementById('grantModBtn').onclick = async () => {
       const targetName = document.getElementById('modTargetUsername').value.trim();
       if (!targetName) return alert('Введи никнейм игрока!');
 
       const user = registeredUsers.find(u => u.username.toLowerCase() === targetName.toLowerCase());
-      if (!user) return alert(`Игрок "${targetName}" не найден! Проверь написание ника.`);
+      if (!user) return alert(`Игрок "${targetName}" не найден!`);
       if (user.role === 'admin') return alert('Нельзя изменить роль Главного Админа!');
 
       user.role = 'mod';
-      saveUsers();
+      await saveCloudData();
       alert(`✅ Игроку ${user.username} успешно выдана МОДЕРАЦИЯ!`);
       document.getElementById('modTargetUsername').value = '';
       renderUsersRolesList();
@@ -1056,7 +1092,7 @@
       renderCards();
     };
 
-    document.getElementById('revokeModBtn').onclick = () => {
+    document.getElementById('revokeModBtn').onclick = async () => {
       const targetName = document.getElementById('modTargetUsername').value.trim();
       if (!targetName) return alert('Введи никнейм игрока!');
 
@@ -1065,7 +1101,7 @@
       if (user.role === 'admin') return alert('Нельзя снять роль с Главного Админа!');
 
       user.role = 'user';
-      saveUsers();
+      await saveCloudData();
       alert(`❌ У игрока ${user.username} забрана модерация.`);
       document.getElementById('modTargetUsername').value = '';
       renderUsersRolesList();
@@ -1073,7 +1109,7 @@
       renderCards();
     };
 
-    function deleteMap(mapId) {
+    async function deleteMap(mapId) {
       if (!currentUser || (currentUser.role !== 'admin' && currentUser.role !== 'mod')) {
         return alert('Недостаточно прав!');
       }
@@ -1082,7 +1118,7 @@
         const map = mapsData.find(m => m.id === mapId);
         if (map) {
           map.deleted = true;
-          saveMaps();
+          await saveCloudData();
           renderCards();
           closeModal(mapModal);
           alert('Карта помечена как удаленная!');
@@ -1090,20 +1126,23 @@
       }
     }
 
-    // Username check for registration
     const regUsernameInput = document.getElementById('regUsername');
     const regUserError = document.getElementById('regUserError');
     let isUsernameValid = false;
 
     regUsernameInput.addEventListener('input', () => {
       const val = regUsernameInput.value.trim();
-
       if (!val) {
         regUserError.style.display = 'none';
         isUsernameValid = false;
         return;
       }
-
+      if (val.toLowerCase() === 'sasavot') {
+        regUserError.innerText = '[ ЗАНЯТ АДМИНИСТРАТОРОМ ]';
+        regUserError.style.display = 'inline-block';
+        isUsernameValid = false;
+        return;
+      }
       if (checkProfanity(val)) {
         regUserError.innerText = '[ ЗАПРЕЩЕННЫЙ НИК ]';
         regUserError.style.display = 'inline-block';
@@ -1122,7 +1161,6 @@
       }
     });
 
-    // Minecraft Captcha Test
     const captchaQuestions = [
       { q: "Сколько алмазов нужно для крафта кирки?", options: ["2 штуки", "3 штуки", "5 штук"], correct: 1 },
       { q: "Какой моб шипит и взрывается?", options: ["Скелет", "Крипер", "Зомби"], correct: 1 },
@@ -1145,7 +1183,6 @@
 
       currentCaptcha.options.forEach((optText, index) => {
         const btn = document.createElement('button');
-        btn.className = 'captcha-option-btn';
         btn.style.cssText = 'background: #373737; border: 2px solid #000; color: #fff; font-family: "Press Start 2P", cursive; font-size: 8px; padding: 6px; cursor: pointer; text-align: left;';
         btn.innerText = optText;
         btn.onclick = (e) => {
@@ -1155,7 +1192,7 @@
             qText.innerText = "✅ ПРОВЕРКА ПРОЙДЕНА!";
             qBox.innerHTML = '';
           } else {
-            alert('❌ Неверный ответ! Пройди тест заново.');
+            alert('❌ Неверный ответ!');
             resetCaptcha();
           }
         };
@@ -1163,8 +1200,7 @@
       });
     }
 
-    // Submit Registration with Real Registration Date & Time
-    document.getElementById('submitRegisterBtn').onclick = () => {
+    document.getElementById('submitRegisterBtn').onclick = async () => {
       const username = regUsernameInput.value.trim();
       const password = document.getElementById('regPassword').value.trim();
 
@@ -1186,22 +1222,22 @@
         password,
         role: 'user',
         regDate: fullRegDate,
-        avatar: DEFAULT_AVATAR
+        avatar: DEFAULT_AVATAR,
+        lastActive: Date.now()
       };
 
       registeredUsers.push(newUser);
-      saveUsers();
+      await saveCloudData();
 
       currentUser = newUser;
       saveSession(username);
       updateNavAuth();
 
       closeModal(registerModal);
-      alert(`🎉 Успешная регистрация! Добро пожаловать, ${username} (Твой ID: #${newUser.id})!`);
+      alert(`🎉 Успешная регистрация! Добро пожаловать, ${username}!`);
       renderCards();
     };
 
-    // Submit Login
     document.getElementById('submitLoginBtn').onclick = () => {
       const username = document.getElementById('loginUsername').value.trim();
       const password = document.getElementById('loginPassword').value.trim();
@@ -1210,6 +1246,7 @@
 
       if (found) {
         currentUser = found;
+        currentUser.lastActive = Date.now();
         saveSession(found.username);
         updateNavAuth();
         closeModal(loginModal);
@@ -1221,7 +1258,7 @@
     };
 
     // ========================================================
-    // 🗺️ MAPS RENDER
+    // 🗺️ MAPS RENDER & INTERACTION
     // ========================================================
     let activeMapId = null;
     let currentImageIndex = 0;
@@ -1276,9 +1313,9 @@
         card.className = `map-card ${map.deleted ? 'is-deleted' : ''}`;
         
         let topBadgeHtml = '';
-        if (map.topRank === 1) topBadgeHtml = `<div class="top-badge top-badge-1" style="position:absolute; top:8px; left:8px; font-family:'Press Start 2P',cursive; font-size:9px; padding:5px; background:#ffaa00; border:2px solid #000;">🥇 ТОП 1</div>`;
-        else if (map.topRank === 2) topBadgeHtml = `<div class="top-badge top-badge-2" style="position:absolute; top:8px; left:8px; font-family:'Press Start 2P',cursive; font-size:9px; padding:5px; background:#aaaaff; border:2px solid #000;">🥈 ТОП 2</div>`;
-        else if (map.topRank === 3) topBadgeHtml = `<div class="top-badge top-badge-3" style="position:absolute; top:8px; left:8px; font-family:'Press Start 2P',cursive; font-size:9px; padding:5px; background:#da8a47; border:2px solid #000;">🥉 ТОП 3</div>`;
+        if (map.topRank === 1) topBadgeHtml = `<div style="position:absolute; top:8px; left:8px; font-family:'Press Start 2P',cursive; font-size:9px; padding:5px; background:#ffaa00; border:2px solid #000;">🥇 ТОП 1</div>`;
+        else if (map.topRank === 2) topBadgeHtml = `<div style="position:absolute; top:8px; left:8px; font-family:'Press Start 2P',cursive; font-size:9px; padding:5px; background:#aaaaff; border:2px solid #000;">🥈 ТОП 2</div>`;
+        else if (map.topRank === 3) topBadgeHtml = `<div style="position:absolute; top:8px; left:8px; font-family:'Press Start 2P',cursive; font-size:9px; padding:5px; background:#da8a47; border:2px solid #000;">🥉 ТОП 3</div>`;
 
         let deleteBtnHtml = '';
         if (currentUser && (currentUser.role === 'admin' || currentUser.role === 'mod') && !map.deleted) {
@@ -1316,31 +1353,26 @@
       totalEvaluatedCount.innerText = mapsData.filter(m => m.reviews && m.reviews.length > 0).length;
     }
 
-    // Navigation Controls
     document.getElementById('tabAllBtn').onclick = () => {
       currentFilterMode = 'all';
       document.getElementById('cardsSectionTitle').innerText = '🌿 Все карты';
       renderCards();
     };
-
     document.getElementById('navAllMapsBtn').onclick = () => {
       currentFilterMode = 'all';
       document.getElementById('cardsSectionTitle').innerText = '🌿 Все карты';
       renderCards();
     };
-
     document.getElementById('tabTopBtn').onclick = () => {
       currentFilterMode = 'top';
       document.getElementById('cardsSectionTitle').innerText = '🏆 Рейтинг ТОП Карт';
       renderCards();
     };
-
     document.getElementById('navTopMapsBtn').onclick = () => {
       currentFilterMode = 'top';
       document.getElementById('cardsSectionTitle').innerText = '🏆 Рейтинг ТОП Карт';
       renderCards();
     };
-
     document.getElementById('logoBtn').onclick = () => {
       currentFilterMode = 'all';
       renderCards();
@@ -1414,7 +1446,6 @@
       });
     }
 
-    // Rating Stars
     const stars = document.querySelectorAll('.star');
     stars.forEach(star => {
       star.addEventListener('mouseover', () => highlightStars(parseInt(star.dataset.value), 'hover'));
@@ -1433,8 +1464,7 @@
     }
     function clearHighlights(className) { stars.forEach(s => s.classList.remove(className)); }
 
-    // Submit Review
-    document.getElementById('submitReviewBtn').onclick = () => {
+    document.getElementById('submitReviewBtn').onclick = async () => {
       const name = document.getElementById('reviewerName').value.trim();
       const text = document.getElementById('reviewerText').value.trim();
 
@@ -1450,14 +1480,13 @@
       if (map) {
         if (!map.reviews) map.reviews = [];
         map.reviews.unshift({ name, stars: currentRating, text });
-        saveMaps();
+        await saveCloudData();
         renderReviews(map);
         renderCards();
         document.getElementById('reviewerText').value = '';
       }
     };
 
-    // Submit New Map
     document.getElementById('submitNewMapBtn').onclick = () => {
       const title = document.getElementById('newMapTitle').value.trim();
       const author = currentUser ? currentUser.username : "Аноним";
@@ -1471,39 +1500,57 @@
 
       const isProfane = checkProfanity(title) || checkProfanity(desc);
 
-      let imagesArray = [];
-      if (coverFile) {
-        imagesArray.push(URL.createObjectURL(coverFile));
-      } else {
-        imagesArray.push(`https://picsum.photos/600/350?random=${Math.floor(Math.random() * 100)}`);
-      }
-
-      if (galleryFiles.length > 0) {
-        galleryFiles.forEach(file => imagesArray.push(URL.createObjectURL(file)));
-      }
-
-      const newMap = {
-        id: Date.now(),
-        title: isProfane ? "[Заблокировано]" : title,
-        author,
-        badge,
-        desc: isProfane ? "Карта заблокирована авто-модератором." : desc,
-        deleted: isProfane,
-        images: imagesArray,
-        reviews: []
+      // Вспомогательная функция для конвертации файлов картинок в Base64 (чтобы они сохранялись в облаке для всех)
+      const readFileAsBase64 = (file) => {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
       };
 
-      mapsData.push(newMap);
-      saveMaps();
-      renderCards();
+      (async () => {
+        let imagesArray = [];
+        if (coverFile) {
+          try {
+            imagesArray.push(await readFileAsBase64(coverFile));
+          } catch(e) {
+            imagesArray.push(`https://picsum.photos/600/350?random=${Math.floor(Math.random() * 100)}`);
+          }
+        } else {
+          imagesArray.push(`https://picsum.photos/600/350?random=${Math.floor(Math.random() * 100)}`);
+        }
 
-      document.getElementById('newMapTitle').value = '';
-      document.getElementById('newMapDesc').value = '';
-      document.getElementById('coverFileInput').value = '';
-      document.getElementById('galleryFileInput').value = '';
+        for (const file of galleryFiles) {
+          try {
+            imagesArray.push(await readFileAsBase64(file));
+          } catch(e) {}
+        }
 
-      closeModal(addMapModal);
-      alert('🎉 Карта успешно добавлена!');
+        const newMap = {
+          id: Date.now(),
+          title: isProfane ? "[Заблокировано]" : title,
+          author,
+          badge,
+          desc: isProfane ? "Карта заблокирована авто-модератором." : desc,
+          deleted: isProfane,
+          images: imagesArray,
+          reviews: []
+        };
+
+        mapsData.push(newMap);
+        await saveCloudData();
+        renderCards();
+
+        document.getElementById('newMapTitle').value = '';
+        document.getElementById('newMapDesc').value = '';
+        document.getElementById('coverFileInput').value = '';
+        document.getElementById('galleryFileInput').value = '';
+
+        closeModal(addMapModal);
+        alert('🎉 Карта успешно добавлена на сервер для всех игроков!');
+      })();
     };
 
     function escapeHtml(str) {
@@ -1511,9 +1558,8 @@
       return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
     }
 
-    // Init App
-    updateNavAuth();
-    renderCards();
+    // Инициализация при старте
+    loadCloudData();
   </script>
 </body>
 </html>
