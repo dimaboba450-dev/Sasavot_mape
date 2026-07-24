@@ -1,0 +1,1359 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SASVOT.MAP - Profile & Session Edition</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Rubik:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background-color: #120e0b;
+      color: #e2d9cd;
+      font-family: 'Rubik', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-bottom: 40px;
+    }
+
+    h1, h2, h3, .mc-font {
+      font-family: 'Press Start 2P', cursive;
+    }
+
+    /* Navbar */
+    header {
+      width: 100%;
+      background-color: #1b1612;
+      border-bottom: 4px solid #7bc61a;
+      padding: 12px 25px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 6px 0px #000;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .nav-left, .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo {
+      font-family: 'Press Start 2P', cursive;
+      color: #ffaa00;
+      font-size: 14px;
+      text-shadow: 2px 2px #000;
+      margin-right: 10px;
+      cursor: pointer;
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #b5ac9e;
+      text-decoration: none;
+      font-size: 10px;
+      font-family: 'Press Start 2P', cursive;
+      transition: color 0.2s;
+      background: none;
+      border: none;
+      cursor: pointer;
+    }
+
+    .nav-link:hover { color: #55ff55; }
+
+    /* Minecraft UI Components */
+    .mc-btn {
+      background: #707070;
+      border: 3px solid #000;
+      box-shadow: inset -3px -3px 0px 0px #3b3b3b, inset 3px 3px 0px 0px #a8a8a8;
+      color: #fff;
+      font-family: 'Press Start 2P', cursive;
+      font-size: 9px;
+      padding: 8px 10px;
+      cursor: pointer;
+      text-shadow: 1px 1px 0px #000;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      user-select: none;
+    }
+
+    .mc-btn:hover { background: #8b8b8b; }
+    .mc-btn:active { box-shadow: inset 3px 3px 0px 0px #2a2a2a; transform: translateY(1px); }
+
+    .mc-btn-green {
+      background: #5b8731;
+      box-shadow: inset -3px -3px 0px 0px #2a4113, inset 3px 3px 0px 0px #8ed147;
+    }
+    .mc-btn-green:hover { background: #6fa23d; }
+
+    .mc-btn-red {
+      background: #a82323;
+      box-shadow: inset -3px -3px 0px 0px #5e1111, inset 3px 3px 0px 0px #e64c4c;
+    }
+    .mc-btn-red:hover { background: #c43131; }
+
+    .mc-btn-gold {
+      background: #c68e17;
+      box-shadow: inset -3px -3px 0px 0px #614305, inset 3px 3px 0px 0px #ffd054;
+      color: #fff;
+    }
+    .mc-btn-gold:hover { background: #dfa21a; }
+
+    .mc-btn-blue {
+      background: #2c598e;
+      box-shadow: inset -3px -3px 0px 0px #132a48, inset 3px 3px 0px 0px #538bd1;
+    }
+
+    .user-badge {
+      display: flex;
+      align-items: center;
+      background-color: #000;
+      border: 2px solid #3d3529;
+      padding: 5px 8px;
+      font-size: 9px;
+      font-family: 'Press Start 2P', cursive;
+      gap: 8px;
+      cursor: pointer;
+    }
+    .user-badge:hover { border-color: #55ff55; }
+
+    .user-avatar-mini {
+      width: 20px;
+      height: 20px;
+      border: 1px solid #fff;
+      image-rendering: pixelated;
+      object-fit: cover;
+    }
+
+    .user-status { width: 8px; height: 8px; background-color: #55ff55; display: inline-block; }
+    .user-role-admin { background-color: #ff5555; color: #fff; padding: 2px 4px; font-size: 8px; }
+    .user-role-mod { background-color: #aa00aa; color: #fff; padding: 2px 4px; font-size: 8px; }
+    .user-role-user { background-color: #ffaa00; color: #000; padding: 2px 4px; font-size: 8px; }
+
+    .clickable-nick {
+      cursor: pointer;
+      text-decoration: underline;
+    }
+    .clickable-nick:hover { color: #ffff55 !important; }
+
+    /* TOP MAP BADGES */
+    .top-badge {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      font-family: 'Press Start 2P', cursive;
+      font-size: 9px;
+      padding: 5px 8px;
+      border: 2px solid #000;
+      text-shadow: 1px 1px 0px #000;
+      z-index: 5;
+    }
+
+    .top-badge-1 {
+      background-color: #ffaa00; color: #ffffff;
+      box-shadow: inset -2px -2px 0px #aa6600, inset 2px 2px 0px #ffff55, 0 0 10px #ffaa00;
+    }
+
+    .top-badge-2 {
+      background-color: #aaaaff; color: #ffffff;
+      box-shadow: inset -2px -2px 0px #5555aa, inset 2px 2px 0px #ffffff;
+    }
+
+    .top-badge-3 {
+      background-color: #da8a47; color: #ffffff;
+      box-shadow: inset -2px -2px 0px #804010, inset 2px 2px 0px #ffb873;
+    }
+
+    /* Main Container */
+    .container {
+      width: 100%; max-width: 960px; padding: 30px 20px;
+      display: flex; flex-direction: column; align-items: center;
+    }
+
+    .challenge-tag {
+      background-color: #aa0000; border: 2px solid #000;
+      box-shadow: inset -2px -2px 0px #550000, inset 2px 2px 0px #ff5555;
+      color: #ffffff; font-family: 'Press Start 2P', cursive;
+      font-size: 11px; padding: 6px 14px; display: inline-flex; align-items: center; gap: 8px;
+    }
+
+    .sub-tag-line { color: #8c8273; font-size: 12px; margin-top: 12px; font-family: 'Press Start 2P', cursive; text-align: center; }
+
+    .hero-title { font-family: 'Press Start 2P', cursive; text-align: center; margin: 25px 0 15px 0; line-height: 1.6; }
+    .hero-title .white { color: #ffffff; font-size: 26px; text-shadow: 3px 3px #000; display: block; }
+    .hero-title .green { color: #55ff55; font-size: 32px; text-shadow: 3px 3px #000; display: block; margin-top: 5px; }
+
+    .hero-description { color: #a69c8d; font-size: 13px; text-align: center; max-width: 520px; line-height: 1.5; margin-bottom: 30px; }
+
+    /* Judges Cards */
+    .judges-grid { display: flex; gap: 15px; width: 100%; justify-content: center; margin-bottom: 30px; }
+
+    .judge-card {
+      background-color: #1d1813; border: 3px solid #000;
+      box-shadow: inset -2px -2px 0px #100d0a, inset 2px 2px 0px #352c23;
+      padding: 12px 14px; flex: 1; max-width: 280px; display: flex; align-items: flex-start; gap: 10px;
+    }
+
+    .judge-icon { font-size: 20px; }
+    .judge-info { display: flex; flex-direction: column; gap: 4px; }
+    .judge-nickname { font-family: 'Press Start 2P', cursive; font-size: 11px; }
+    .red .judge-nickname { color: #ff5555; }
+    .purple .judge-nickname { color: #aa00aa; }
+    .cyan .judge-nickname { color: #55ffff; }
+    .judge-subname { color: #aaa; font-size: 11px; }
+    .judge-desc { color: #777; font-size: 10px; }
+
+    /* Stats Section */
+    .stats-row { display: flex; gap: 50px; justify-content: center; align-items: center; margin-bottom: 35px; }
+    .stat-item { text-align: center; }
+    .stat-number { font-family: 'Press Start 2P', cursive; color: #ffaa00; font-size: 24px; text-shadow: 2px 2px #000; margin-bottom: 8px; }
+    .stat-label { color: #8c8273; font-size: 10px; font-family: 'Press Start 2P', cursive; }
+
+    .divider { width: 100%; height: 4px; background-color: #55ff55; box-shadow: 0 0 10px rgba(85, 255, 85, 0.5); margin-bottom: 25px; }
+
+    .section-title { width: 100%; font-family: 'Press Start 2P', cursive; font-size: 14px; color: #ffffff; margin-bottom: 15px; }
+    .tabs-row { width: 100%; display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+
+    /* Cards Grid */
+    .cards-container { width: 100%; display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; }
+
+    .map-card {
+      background-color: #1c1712; border: 3px solid #000;
+      box-shadow: inset -2px -2px 0px #0e0b09, inset 2px 2px 0px #382e24;
+      cursor: pointer; position: relative; transition: transform 0.1s, border-color 0.2s;
+    }
+
+    .map-card:hover { transform: translateY(-3px); border-color: #55ff55; }
+
+    .map-card.is-deleted { filter: grayscale(100%); opacity: 0.6; cursor: not-allowed; border-color: #aa0000 !important; }
+    .map-card.is-deleted:hover { transform: none; }
+
+    .deleted-overlay-tag {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-12deg);
+      background-color: #aa0000; border: 3px solid #000;
+      box-shadow: inset -2px -2px 0px #550000, inset 2px 2px 0px #ff5555;
+      color: #ffffff; font-family: 'Press Start 2P', cursive;
+      font-size: 14px; padding: 10px 14px; text-shadow: 2px 2px #000; z-index: 10; pointer-events: none; white-space: nowrap;
+    }
+
+    .map-preview { width: 100%; height: 140px; background-size: cover; background-position: center; border-bottom: 3px solid #000; position: relative; }
+    .map-details { padding: 12px; }
+    .map-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .map-author { color: #55ff55; font-family: 'Press Start 2P', cursive; font-size: 10px; }
+    .map-badge { background-color: #3b3123; border: 1px solid #000; color: #ffaa00; font-family: 'Press Start 2P', cursive; font-size: 8px; padding: 3px 5px; }
+    .map-card-title { color: #ffffff; font-family: 'Press Start 2P', cursive; font-size: 11px; margin-bottom: 8px; line-height: 1.3; }
+    .map-card-desc { color: #aaa; font-size: 11px; margin-bottom: 10px; }
+    .map-card-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #332a20; padding-top: 8px; margin-top: 6px; }
+    .map-rating-score { font-family: 'Press Start 2P', cursive; font-size: 10px; color: #ffaa00; }
+
+    /* Modals Base */
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+      background-color: rgba(0, 0, 0, 0.85); display: none;
+      justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(3px);
+    }
+    .modal-overlay.active { display: flex; }
+
+    .mc-modal {
+      background-color: #c6c6c6; width: 90%; max-width: 560px; padding: 16px; position: relative;
+      border: 4px solid #000; box-shadow: inset -4px -4px 0px 0px #555555, inset 4px 4px 0px 0px #ffffff;
+      color: #000; max-height: 90vh; overflow-y: auto;
+    }
+
+    .mc-modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 2px solid #555; padding-bottom: 8px; }
+
+    .mc-close-btn {
+      background: #aa0000; border: 2px solid #000;
+      box-shadow: inset -2px -2px 0px 0px #550000, inset 2px 2px 0px 0px #ff5555;
+      color: #fff; font-family: 'Press Start 2P', cursive; font-size: 12px;
+      width: 28px; height: 28px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+    }
+    .mc-close-btn:hover { background: #ff5555; }
+    .mc-title { font-family: 'Press Start 2P', cursive; font-size: 12px; color: #000; text-shadow: 1px 1px 0px #fff; }
+    .mc-subtitle { font-size: 11px; color: #333; margin-bottom: 12px; font-weight: bold; }
+
+    .mc-section {
+      background: #8b8b8b; border: 2px solid #000;
+      box-shadow: inset -2px -2px 0px 0px #ffffff, inset 2px 2px 0px 0px #373737;
+      padding: 10px; margin-bottom: 12px;
+    }
+
+    .mc-label-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    .mc-label { font-family: 'Press Start 2P', cursive; font-size: 9px; color: #ffff55; text-shadow: 1px 1px 0px #000; display: block; }
+    
+    .mc-inline-error { color: #ff3333; font-family: 'Press Start 2P', cursive; font-size: 8px; text-shadow: 1px 1px 0px #000; display: none; }
+
+    /* Profile Specific Styles */
+    .profile-card-header {
+      display: flex; gap: 15px; align-items: center; background: #000; padding: 12px; border: 2px solid #555; margin-bottom: 12px;
+    }
+    .profile-avatar-large {
+      width: 70px; height: 70px; border: 3px solid #ffaa00; image-rendering: pixelated; object-fit: cover; background-color: #222;
+    }
+    .profile-info-box { display: flex; flex-direction: column; gap: 6px; color: #fff; }
+    .profile-nick { font-family: 'Press Start 2P', cursive; font-size: 14px; color: #55ff55; text-shadow: 2px 2px #000; }
+    .profile-row-item { font-size: 11px; display: flex; align-items: center; gap: 8px; font-family: 'Press Start 2P', cursive; }
+
+    .slider-box { position: relative; width: 100%; height: 220px; background-color: #000; border: 2px solid #000; display: flex; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 8px; }
+    .slider-img { max-width: 100%; max-height: 100%; object-fit: contain; }
+    .slider-controls { display: flex; justify-content: space-between; align-items: center; background: #373737; padding: 6px; border: 2px solid #000; }
+    .slider-counter { font-family: 'Press Start 2P', cursive; font-size: 10px; color: #fff; }
+
+    .stars-container { display: flex; gap: 6px; margin-bottom: 10px; }
+    .star { font-size: 22px; color: #373737; cursor: pointer; user-select: none; text-shadow: 1px 1px 0px #000; }
+    .star.active, .star.hover { color: #ffaa00; }
+
+    .mc-input, .mc-textarea {
+      width: 100%; background: #000; border: 2px solid #373737; box-shadow: inset 2px 2px 0px 0px #111;
+      color: #fff; font-family: 'Rubik', sans-serif; padding: 8px; font-size: 12px; margin-bottom: 10px; outline: none;
+    }
+
+    .mc-input-file { background: #373737; border: 2px solid #000; color: #fff; padding: 6px; font-size: 10px; width: 100%; margin-bottom: 10px; cursor: pointer; }
+    .mc-input:focus, .mc-textarea:focus { border-color: #55ff55; }
+
+    /* Bot Captcha Box */
+    .captcha-box { background-color: #000; border: 2px solid #555; padding: 10px; margin-bottom: 10px; }
+    .captcha-question { color: #55ffff; font-family: 'Press Start 2P', cursive; font-size: 9px; margin-bottom: 8px; line-height: 1.4; }
+    .captcha-options { display: flex; flex-direction: column; gap: 6px; }
+    .captcha-option-btn { background: #373737; border: 2px solid #000; color: #fff; font-family: 'Press Start 2P', cursive; font-size: 9px; padding: 6px; cursor: pointer; text-align: left; }
+    .captcha-option-btn:hover { background: #555; }
+
+    .reviews-list { max-height: 120px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; }
+    .review-item { background-color: #000; border: 1px solid #555; padding: 6px 8px; color: #fff; }
+    .review-header { display: flex; justify-content: space-between; margin-bottom: 4px; font-size: 10px; }
+    .review-user { color: #55ffff; font-family: 'Press Start 2P', cursive; font-size: 9px; }
+    .review-stars { color: #ffaa00; }
+    .review-body { font-size: 11px; color: #ddd; }
+
+    .watermark { margin-top: 40px; color: #3d3429; font-family: 'Press Start 2P', cursive; letter-spacing: 2px; font-size: 12px; }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <div class="nav-left">
+      <div class="logo" id="logoBtn">SASVOT.MAP</div>
+      <button class="nav-link" id="navAllMapsBtn"><span>🗺️</span> Все Карты</button>
+      <button class="nav-link" id="navTopMapsBtn"><span>🏆</span> Топ Карт</button>
+      <button class="mc-btn mc-btn-green" id="openAddMapModalBtn">
+        <span>➕</span> Добавить карту
+      </button>
+    </div>
+
+    <!-- Auth Nav Section -->
+    <div class="nav-right" id="navAuthSection"></div>
+  </header>
+
+  <!-- Container -->
+  <div class="container">
+    <div class="challenge-tag">🔥 141 - MAP CHALLENGE</div>
+    <div class="sub-tag-line">— Карты от подписчиков сасавота —</div>
+
+    <h1 class="hero-title">
+      <span class="white">Карты про</span>
+      <span class="green">Сасавота</span>
+    </h1>
+
+    <p class="hero-description">
+      Подписчики создали карты в Minecraft с Глебом, кто же из них победит?
+    </p>
+
+    <!-- Judges -->
+    <div class="judges-grid">
+      <div class="judge-card red">
+        <div class="judge-icon">🔥</div>
+        <div class="judge-info">
+          <div class="judge-nickname clickable-nick" onclick="openProfile('sasavot')">sasavot</div>
+          <div class="judge-subname">Глеб • Парень Нарека</div>
+          <div class="judge-desc">главный арбитр</div>
+        </div>
+      </div>
+
+      <div class="judge-card purple">
+        <div class="judge-icon">🐕</div>
+        <div class="judge-info">
+          <div class="judge-nickname clickable-nick" onclick="openProfile('tw1zn129')">tw1zn129</div>
+          <div class="judge-subname">Кирилл • 129</div>
+          <div class="judge-desc">модератор проекта</div>
+        </div>
+      </div>
+
+      <div class="judge-card cyan">
+        <div class="judge-icon">🛡️</div>
+        <div class="judge-info">
+          <div class="judge-nickname clickable-nick" onclick="openProfile('rostikfacekid')">rostikfacekid</div>
+          <div class="judge-subname">Ростик • Ляля</div>
+          <div class="judge-desc">судья бидов</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-item">
+        <div class="stat-number" id="totalMapsCount">0</div>
+        <div class="stat-label">карт в подборке</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">3</div>
+        <div class="stat-label">Судьи</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number" id="totalEvaluatedCount">0</div>
+        <div class="stat-label">с оценкой</div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="section-title" id="cardsSectionTitle">🌿 Все карты</div>
+
+    <div class="tabs-row">
+      <button class="mc-btn mc-btn-green" id="tabAllBtn">📁 Все карты (<span id="countAllTab">0</span>)</button>
+      <button class="mc-btn mc-btn-gold" id="tabTopBtn">🏆 Рейтинг ТОП-3</button>
+    </div>
+
+    <!-- Map Cards Grid -->
+    <div class="cards-container" id="cardsContainer"></div>
+
+    <div class="watermark">TEMADANCE</div>
+  </div>
+
+  <!-- 1. MODAL: USER PROFILE -->
+  <div class="modal-overlay" id="profileModal">
+    <div class="mc-modal">
+      <div class="mc-modal-header">
+        <div class="mc-title">👤 ПРОФИЛЬ ИГРОКА</div>
+        <button class="mc-close-btn">X</button>
+      </div>
+
+      <div class="profile-card-header">
+        <img id="profileAvatarImg" class="profile-avatar-large" src="" alt="Avatar">
+        <div class="profile-info-box">
+          <div class="profile-nick" id="profileUsername">Steve</div>
+          <div class="profile-row-item"><span>АЙДИ:</span> <span id="profileUserId" style="color: #ffaa00;">#1</span></div>
+          <div class="profile-row-item"><span>СТАТУС:</span> <span id="profileUserRole">[ ИГРОК ]</span></div>
+        </div>
+      </div>
+
+      <div class="mc-section">
+        <div class="profile-row-item" style="margin-bottom: 8px;">
+          <span style="color: #ffff55;">📅 ДАТА РЕГИСТРАЦИИ:</span>
+          <span id="profileRegDate" style="color: #fff;">01.01.2026</span>
+        </div>
+        <div class="profile-row-item">
+          <span style="color: #ffff55;">🗺️ СОЗДАНО КАPТ:</span>
+          <span id="profileMapsCount" style="color: #55ff55;">0</span>
+        </div>
+      </div>
+
+      <!-- Change Avatar Section (visible only for own profile) -->
+      <div class="mc-section" id="changeAvatarBox" style="display: none;">
+        <span class="mc-label" style="margin-bottom: 6px;">СМЕНИТЬ АВАТАРКУ:</span>
+        <input type="file" id="avatarFileInput" class="mc-input-file" accept="image/*">
+        <button class="mc-btn mc-btn-green" id="saveAvatarBtn" style="width: 100%; justify-content: center;">СОХРАНИТЬ АВАТАР</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. MODAL: ADMIN MODERATION PANEL -->
+  <div class="modal-overlay" id="adminModal">
+    <div class="mc-modal">
+      <div class="mc-modal-header">
+        <div class="mc-title">🛡️ ПАНЕЛЬ МОДЕРАЦИИ</div>
+        <button class="mc-close-btn">X</button>
+      </div>
+      <div class="mc-subtitle">Выдача прав модератора игрокам</div>
+
+      <div class="mc-section">
+        <label class="mc-label" style="margin-bottom: 6px;">ВВЕДИ НИКНЕЙМ ИГРОКА:</label>
+        <input type="text" id="modTargetUsername" class="mc-input" placeholder="например: StevePro">
+
+        <div style="display: flex; gap: 10px;">
+          <button class="mc-btn mc-btn-green" id="grantModBtn" style="flex: 1; justify-content: center;">ВЫДАТЬ МОДЕРКУ</button>
+          <button class="mc-btn mc-btn-red" id="revokeModBtn" style="flex: 1; justify-content: center;">ЗАБРАТЬ МОДЕРКУ</button>
+        </div>
+      </div>
+
+      <div class="mc-section" style="margin-bottom: 0;">
+        <span class="mc-label" style="margin-bottom: 6px;">СПИСОК ПОЛЬЗОВАТЕЛЕЙ И РОЛЕЙ:</span>
+        <div id="usersRolesList" style="font-size: 11px; max-height: 120px; overflow-y: auto; background: #000; padding: 8px; color: #fff;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. MODAL: LOGIN -->
+  <div class="modal-overlay" id="loginModal">
+    <div class="mc-modal">
+      <div class="mc-modal-header">
+        <div class="mc-title">ВХОД В АККАУНТ</div>
+        <button class="mc-close-btn">X</button>
+      </div>
+      <div class="mc-subtitle">Войди, чтобы добавлять карты</div>
+
+      <div class="mc-section">
+        <label class="mc-label" style="margin-bottom: 6px;">НИКНЕЙМ:</label>
+        <input type="text" id="loginUsername" class="mc-input" placeholder="Твой никнейм">
+
+        <label class="mc-label" style="margin-bottom: 6px;">ПАРОЛЬ:</label>
+        <input type="password" id="loginPassword" class="mc-input" placeholder="Пароль">
+
+        <button class="mc-btn mc-btn-green" id="submitLoginBtn" style="width: 100%; justify-content: center; margin-top: 5px;">ВОЙТИ</button>
+      </div>
+
+      <div style="text-align: center;">
+        <span style="font-size: 11px; color: #333; font-weight: bold;">Ещё нет аккаунта?</span><br><br>
+        <button class="mc-btn mc-btn-blue" id="switchToRegisterBtn">СОЗДАТЬ АККАУНТ (РЕГИСТРАЦИЯ)</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. MODAL: REGISTER -->
+  <div class="modal-overlay" id="registerModal">
+    <div class="mc-modal">
+      <div class="mc-modal-header">
+        <div class="mc-title">РЕГИСТРАЦИЯ</div>
+        <button class="mc-close-btn">X</button>
+      </div>
+      <div class="mc-subtitle">Создай аккаунт с нуля</div>
+
+      <div class="mc-section">
+        <div class="mc-label-row">
+          <label class="mc-label">ПРИДУМАЙ НИК:</label>
+          <span id="regUserError" class="mc-inline-error">[ ЭТОТ НИКНЕЙМ ЗАНЯТ ]</span>
+        </div>
+        <input type="text" id="regUsername" class="mc-input" placeholder="Например: StevePro">
+
+        <label class="mc-label" style="margin-bottom: 6px;">ПРИДУМАЙ ПАРОЛЬ:</label>
+        <input type="password" id="regPassword" class="mc-input" placeholder="Пароль">
+
+        <div class="captcha-box">
+          <div class="captcha-question" id="captchaQuestionText">Загрузка проверки...</div>
+          <div class="captcha-options" id="captchaOptionsBox"></div>
+        </div>
+
+        <button class="mc-btn mc-btn-green" id="submitRegisterBtn" style="width: 100%; justify-content: center; margin-top: 5px;">ЗАРЕГИСТРИРОВАТЬСЯ</button>
+      </div>
+
+      <div style="text-align: center;">
+        <span style="font-size: 11px; color: #333; font-weight: bold;">Уже есть аккаунт?</span><br><br>
+        <button class="mc-btn" id="switchToLoginBtn">ВОЙТИ В АККАУНТ</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. MODAL: VIEW MAP -->
+  <div class="modal-overlay" id="mapModal">
+    <div class="mc-modal">
+      <div class="mc-modal-header">
+        <div class="mc-title" id="modalMapTitle">Название карты</div>
+        <button class="mc-close-btn" id="closeMapModal">X</button>
+      </div>
+
+      <div class="mc-subtitle" id="modalMapSub">Создатель: ... | Сложность: ...</div>
+
+      <div class="mc-section">
+        <span class="mc-label" style="margin-bottom: 8px;">СКРИНШОТЫ КАРТЫ:</span>
+        <div class="slider-box">
+          <img id="sliderImg" class="slider-img" src="" alt="Скриншот">
+        </div>
+        <div class="slider-controls">
+          <button class="mc-btn" id="prevImgBtn">◀ Назад</button>
+          <span class="slider-counter" id="sliderCounter">1 / 1</span>
+          <button class="mc-btn" id="nextImgBtn">Вперед ▶</button>
+        </div>
+      </div>
+
+      <div class="mc-section">
+        <span class="mc-label" style="margin-bottom: 8px;">ПОСТАВИТЬ ОЦЕНКУ:</span>
+        <div class="stars-container" id="starsContainer">
+          <span class="star" data-value="1">★</span>
+          <span class="star" data-value="2">★</span>
+          <span class="star" data-value="3">★</span>
+          <span class="star" data-value="4">★</span>
+          <span class="star" data-value="5">★</span>
+        </div>
+      </div>
+
+      <div class="mc-section">
+        <span class="mc-label" style="margin-bottom: 8px;">ОСТАВИТЬ ОТЗЫВ:</span>
+        <input type="text" id="reviewerName" class="mc-input" placeholder="Твой никнейм..." value="Steve">
+        <textarea id="reviewerText" class="mc-textarea" rows="2" placeholder="Напиши отзыв..."></textarea>
+        <button class="mc-btn mc-btn-green" id="submitReviewBtn">ОТПРАВИТЬ ОТЗЫВ</button>
+      </div>
+
+      <div class="mc-section">
+        <span class="mc-label" style="margin-bottom: 8px;">ОТЗЫВЫ ИГРОКОВ:</span>
+        <div class="reviews-list" id="reviewsList"></div>
+      </div>
+
+      <div id="modalAdminActions" style="display: none;" class="mc-section">
+        <span class="mc-label" style="margin-bottom: 8px; color: #ff5555;">ДЕЙСТВИЯ МОДЕРАТОРА:</span>
+        <button class="mc-btn mc-btn-red" id="modalDeleteMapBtn" style="width: 100%; justify-content: center;">🗑️ УДАЛИТЬ ЭТУ КАРТУ</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. MODAL: ADD MAP -->
+  <div class="modal-overlay" id="addMapModal">
+    <div class="mc-modal">
+      <div class="mc-modal-header">
+        <div class="mc-title">ДОБАВИТЬ КАРТУ</div>
+        <button class="mc-close-btn">X</button>
+      </div>
+
+      <div class="mc-subtitle">Загрузи свою карту и скриншоты</div>
+
+      <div class="mc-section" style="margin-bottom: 0;">
+        <label class="mc-label" style="margin-bottom: 6px;">НАЗВАНИЕ КАРТЫ:</label>
+        <input type="text" id="newMapTitle" class="mc-input" placeholder="Победи Сасавота">
+
+        <label class="mc-label" style="margin-bottom: 6px;">АВТОР:</label>
+        <input type="text" id="newMapAuthor" class="mc-input" disabled style="color: #55ff55; font-weight: bold;">
+
+        <label class="mc-label" style="margin-bottom: 6px;">СЛОЖНОСТЬ:</label>
+        <select id="newMapBadge" class="mc-input" style="cursor: pointer; background-color: #000;">
+          <option value="Легкая">Легкая</option>
+          <option value="Средняя" selected>Средняя</option>
+          <option value="Хардкор">Хардкор</option>
+        </select>
+
+        <label class="mc-label" style="margin-bottom: 6px;">ОБЛОЖКА КАРТЫ (1 ФОТО):</label>
+        <input type="file" id="coverFileInput" class="mc-input-file" accept="image/*">
+
+        <label class="mc-label" style="margin-bottom: 6px;">ГАЛЕРЕЯ СКРИНШОТОВ (ДО 5 ШТ):</label>
+        <input type="file" id="galleryFileInput" class="mc-input-file" accept="image/*" multiple>
+
+        <label class="mc-label" style="margin-bottom: 6px;">ОПИСАНИЕ:</label>
+        <textarea id="newMapDesc" class="mc-textarea" rows="2" placeholder="Краткое описание..."></textarea>
+
+        <button class="mc-btn mc-btn-green" id="submitNewMapBtn" style="width: 100%; justify-content: center; margin-top: 5px;">➕ ОПУБЛИКОВАТЬ КАРТУ</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ========================================================
+    // 🛑 PROFANITY FILTER
+    // ========================================================
+    const BANNED_PATTERNS = [
+      /п[иi1!|]д[оoaаeеrр]/i, /п[иi1!|]д[аa]р/i, /п[еe]д[иi1!|]к/i,
+      /н[еeаa]гр/i, /н[иi1!|]гг[еeаarр]/i, /х[оo0]х[оo0]л/i,
+      /к[аa]ц[аa]п/i, /ч[уu]рк[аa]/i, /д[аa]у[нn]/i, /р[еe]т[аa]рд/i,
+      /n[*i!1l|]g[*g]g?[a@4e3r*]/i, /f[*a@4]g[*g]?[o0e3]?t?/i, /p[*i!1]d[*o0a]r/i,
+      /r[*e3]t[*a@4]rd/i, /c[*u*]nt/i, /k[*i!1]ke/i, /s[*l1]ut/i, /b[*i!1]tch/i
+    ];
+
+    function normalizeText(text) {
+      if (!text) return '';
+      let str = text.toLowerCase();
+      const replacements = {
+        '@': 'a', '4': 'a', 'а': 'a', '3': 'e', 'е': 'e', '1': 'i', '!': 'i',
+        '|': 'i', '0': 'o', 'о': 'o', '5': 's', '$': 's', 'с': 's', 'p': 'p', 'р': 'p'
+      };
+      let normalized = '';
+      for (let char of str) { normalized += replacements[char] || char; }
+      return normalized.replace(/[^a-z0-9]/gi, '');
+    }
+
+    function checkProfanity(text) {
+      if (!text) return false;
+      const cleanText = normalizeText(text);
+      for (let pattern of BANNED_PATTERNS) {
+        if (pattern.test(text) || pattern.test(cleanText)) return true;
+      }
+      return false;
+    }
+
+    // ========================================================
+    // 👤 USERS & ROLES & SESSIONS
+    // ========================================================
+    const DEFAULT_AVATAR = 'https://mc-heads.net/avatar/Steve/64';
+
+    let registeredUsers = [
+      { id: 1, username: 'sasavot', password: '123', role: 'admin', regDate: '01.01.2026', avatar: 'https://mc-heads.net/avatar/sasavot/64' },
+      { id: 2, username: 'tw1zn129', password: '123', role: 'mod', regDate: '02.01.2026', avatar: 'https://mc-heads.net/avatar/tw1zn129/64' },
+      { id: 3, username: 'rostikfacekid', password: '123', role: 'user', regDate: '03.01.2026', avatar: 'https://mc-heads.net/avatar/rostik/64' },
+      { id: 4, username: 'StevePro', password: '123', role: 'user', regDate: '05.01.2026', avatar: DEFAULT_AVATAR }
+    ];
+
+    let currentUser = null; 
+    let currentFilterMode = 'all';
+
+    // Single active session lock using LocalStorage
+    function isUserActiveElsewhere(username) {
+      const activeUser = localStorage.getItem('active_online_user');
+      return activeUser && activeUser.toLowerCase() === username.toLowerCase();
+    }
+
+    function setActiveSession(username) {
+      localStorage.setItem('active_online_user', username);
+    }
+
+    function clearActiveSession() {
+      localStorage.removeItem('active_online_user');
+    }
+
+    // Release session on tab close
+    window.addEventListener('beforeunload', () => {
+      if (currentUser) {
+        clearActiveSession();
+      }
+    });
+
+    const navAuthSection = document.getElementById('navAuthSection');
+
+    function updateNavAuth() {
+      if (currentUser) {
+        let roleBadge = '<span class="user-role-user">ИГРОК</span>';
+        let adminBtn = '';
+
+        if (currentUser.role === 'admin') {
+          roleBadge = '<span class="user-role-admin">ГЛ. АДМИН</span>';
+          adminBtn = `<button class="mc-btn mc-btn-gold" id="openAdminModalBtn">🛡️ Панель</button>`;
+        } else if (currentUser.role === 'mod') {
+          roleBadge = '<span class="user-role-mod">МОДЕРАЦИЯ</span>';
+          adminBtn = `<button class="mc-btn mc-btn-gold" id="openAdminModalBtn">🛡️ Панель</button>`;
+        }
+
+        navAuthSection.innerHTML = `
+          ${adminBtn}
+          <div class="user-badge" onclick="openProfile('${escapeHtml(currentUser.username)}')">
+            <img class="user-avatar-mini" src="${currentUser.avatar || DEFAULT_AVATAR}" alt="ava">
+            <span>${escapeHtml(currentUser.username)}</span>
+            ${roleBadge}
+          </div>
+          <button class="mc-btn" id="logoutBtn">Выйти</button>
+        `;
+
+        document.getElementById('logoutBtn').onclick = () => {
+          clearActiveSession();
+          currentUser = null;
+          updateNavAuth();
+          renderCards();
+        };
+
+        const adminModalBtn = document.getElementById('openAdminModalBtn');
+        if (adminModalBtn) {
+          adminModalBtn.onclick = () => {
+            renderUsersRolesList();
+            openModal(adminModal);
+          };
+        }
+
+      } else {
+        navAuthSection.innerHTML = `
+          <button class="mc-btn" id="openLoginBtn">Войти</button>
+          <button class="mc-btn mc-btn-green" id="openRegBtn">Регистрация</button>
+        `;
+        document.getElementById('openLoginBtn').onclick = () => openModal(loginModal);
+        document.getElementById('openRegBtn').onclick = () => {
+          resetCaptcha();
+          openModal(registerModal);
+        };
+      }
+    }
+
+    // Modal Controls
+    const loginModal = document.getElementById('loginModal');
+    const registerModal = document.getElementById('registerModal');
+    const mapModal = document.getElementById('mapModal');
+    const addMapModal = document.getElementById('addMapModal');
+    const adminModal = document.getElementById('adminModal');
+    const profileModal = document.getElementById('profileModal');
+
+    function openModal(modal) { modal.classList.add('active'); }
+    function closeModal(modal) { modal.classList.remove('active'); }
+
+    document.querySelectorAll('.mc-close-btn').forEach(btn => {
+      btn.onclick = () => {
+        closeModal(loginModal);
+        closeModal(registerModal);
+        closeModal(mapModal);
+        closeModal(addMapModal);
+        closeModal(adminModal);
+        closeModal(profileModal);
+      };
+    });
+
+    document.getElementById('switchToRegisterBtn').onclick = () => {
+      closeModal(loginModal);
+      resetCaptcha();
+      openModal(registerModal);
+    };
+
+    document.getElementById('switchToLoginBtn').onclick = () => {
+      closeModal(registerModal);
+      openModal(loginModal);
+    };
+
+    document.getElementById('openAddMapModalBtn').onclick = () => {
+      if (!currentUser) {
+        openModal(loginModal);
+      } else {
+        document.getElementById('newMapAuthor').value = currentUser.username;
+        openModal(addMapModal);
+      }
+    };
+
+    // ========================================================
+    // 👤 PROFILE SYSTEM
+    // ========================================================
+    function openProfile(username) {
+      const user = registeredUsers.find(u => u.username.toLowerCase() === username.toLowerCase());
+      if (!user) return alert('Игрок не найден!');
+
+      document.getElementById('profileUsername').innerText = user.username;
+      document.getElementById('profileUserId').innerText = `#${user.id}`;
+      document.getElementById('profileRegDate').innerText = user.regDate;
+      document.getElementById('profileAvatarImg').src = user.avatar || DEFAULT_AVATAR;
+
+      // Role label
+      let roleHtml = '<span style="color: #ffaa00;">[ ИГРОК ]</span>';
+      if (user.role === 'admin') roleHtml = '<span style="color: #ff5555;">[ ГЛАВНЫЙ АДМИН ]</span>';
+      else if (user.role === 'mod') roleHtml = '<span style="color: #aa00aa;">[ МОДЕРАЦИЯ ]</span>';
+      document.getElementById('profileUserRole').innerHTML = roleHtml;
+
+      // Calculate map count created by this user
+      const mapCount = mapsData.filter(m => !m.deleted && m.author.toLowerCase() === user.username.toLowerCase()).length;
+      document.getElementById('profileMapsCount').innerText = mapCount;
+
+      // Avatar editing box
+      const changeAvatarBox = document.getElementById('changeAvatarBox');
+      if (currentUser && currentUser.username.toLowerCase() === user.username.toLowerCase()) {
+        changeAvatarBox.style.display = 'block';
+      } else {
+        changeAvatarBox.style.display = 'none';
+      }
+
+      openModal(profileModal);
+    }
+
+    // Save New Avatar Logic
+    document.getElementById('saveAvatarBtn').onclick = () => {
+      const fileInput = document.getElementById('avatarFileInput');
+      if (fileInput.files && fileInput.files[0]) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          currentUser.avatar = e.target.result;
+          const u = registeredUsers.find(user => user.username === currentUser.username);
+          if (u) u.avatar = e.target.result;
+
+          document.getElementById('profileAvatarImg').src = currentUser.avatar;
+          updateNavAuth();
+          alert('✅ Аватарка успешно обновлена!');
+        };
+        reader.readAsDataURL(fileInput.files[0]);
+      } else {
+        alert('Сначала выбери файл с картинкой!');
+      }
+    };
+
+    // ========================================================
+    // 🛡️ MODERATION ACTIONS
+    // ========================================================
+    function renderUsersRolesList() {
+      const box = document.getElementById('usersRolesList');
+      box.innerHTML = registeredUsers.map(u => `
+        <div style="display:flex; justify-content: space-between; margin-bottom: 4px; border-bottom: 1px solid #333; padding-bottom: 2px;">
+          <span><b>#${u.id} ${escapeHtml(u.username)}</b></span>
+          <span style="color:${u.role === 'admin' ? '#ff5555' : u.role === 'mod' ? '#aa00aa' : '#ffaa00'}">[${u.role.toUpperCase()}]</span>
+        </div>
+      `).join('');
+    }
+
+    document.getElementById('grantModBtn').onclick = () => {
+      const targetName = document.getElementById('modTargetUsername').value.trim();
+      const user = registeredUsers.find(u => u.username.toLowerCase() === targetName.toLowerCase());
+      if (!user) return alert('Пользователь не найден!');
+      if (user.role === 'admin') return alert('Нельзя изменить роль Главадмина!');
+
+      user.role = 'mod';
+      alert(`✅ Игроку ${user.username} успешно выдана МОДЕРАЦИЯ!`);
+      document.getElementById('modTargetUsername').value = '';
+      renderUsersRolesList();
+      updateNavAuth();
+      renderCards();
+    };
+
+    document.getElementById('revokeModBtn').onclick = () => {
+      const targetName = document.getElementById('modTargetUsername').value.trim();
+      const user = registeredUsers.find(u => u.username.toLowerCase() === targetName.toLowerCase());
+      if (!user) return alert('Пользователь не найден!');
+      if (user.role === 'admin') return alert('Нельзя снять роль с Главного Админа!');
+
+      user.role = 'user';
+      alert(`❌ У игрока ${user.username} забрана модерация.`);
+      document.getElementById('modTargetUsername').value = '';
+      renderUsersRolesList();
+      updateNavAuth();
+      renderCards();
+    };
+
+    function deleteMap(mapId) {
+      if (!currentUser || (currentUser.role !== 'admin' && currentUser.role !== 'mod')) {
+        return alert('Недостаточно прав!');
+      }
+
+      if (confirm('Уверен, что хочешь удалить эту карту?')) {
+        const map = mapsData.find(m => m.id === mapId);
+        if (map) {
+          map.deleted = true;
+          renderCards();
+          closeModal(mapModal);
+          alert('Карта помечена как удаленная!');
+        }
+      }
+    }
+
+    // Username check for registration
+    const regUsernameInput = document.getElementById('regUsername');
+    const regUserError = document.getElementById('regUserError');
+    let isUsernameValid = false;
+
+    regUsernameInput.addEventListener('input', () => {
+      const val = regUsernameInput.value.trim();
+
+      if (!val) {
+        regUserError.style.display = 'none';
+        isUsernameValid = false;
+        return;
+      }
+
+      if (checkProfanity(val)) {
+        regUserError.innerText = '[ ЗАПРЕЩЕННЫЙ НИК ]';
+        regUserError.style.display = 'inline-block';
+        isUsernameValid = false;
+        return;
+      }
+
+      const exists = registeredUsers.some(u => u.username.toLowerCase() === val.toLowerCase());
+      if (exists) {
+        regUserError.innerText = '[ ЭТОТ НИКНЕЙМ ЗАНЯТ ]';
+        regUserError.style.display = 'inline-block';
+        isUsernameValid = false;
+      } else {
+        regUserError.style.display = 'none';
+        isUsernameValid = true;
+      }
+    });
+
+    // Minecraft Captcha Test
+    const captchaQuestions = [
+      { q: "Сколько алмазов нужно для крафта кирки?", options: ["2 штуки", "3 штуки", "5 штук"], correct: 1 },
+      { q: "Какой моб шипит и взрывается?", options: ["Скелет", "Крипер", "Зомби"], correct: 1 },
+      { q: "Чем лучше всего добывать обсидиан?", options: ["Алмазной киркой", "Деревянной лопатой", "Железным мечом"], correct: 0 }
+    ];
+
+    let currentCaptcha = null;
+    let isCaptchaPassed = false;
+
+    function resetCaptcha() {
+      isCaptchaPassed = false;
+      const randomIndex = Math.floor(Math.random() * captchaQuestions.length);
+      currentCaptcha = captchaQuestions[randomIndex];
+
+      const qText = document.getElementById('captchaQuestionText');
+      const qBox = document.getElementById('captchaOptionsBox');
+
+      qText.innerText = "🤖 ПРОВЕРКА НА БОТА: " + currentCaptcha.q;
+      qBox.innerHTML = '';
+
+      currentCaptcha.options.forEach((optText, index) => {
+        const btn = document.createElement('button');
+        btn.className = 'captcha-option-btn';
+        btn.innerText = optText;
+        btn.onclick = (e) => {
+          e.preventDefault();
+          if (index === currentCaptcha.correct) {
+            isCaptchaPassed = true;
+            qText.innerText = "✅ ПРОВЕРКА ПРОЙДЕНА!";
+            qBox.innerHTML = '';
+          } else {
+            alert('❌ Неверный ответ! Пройди тест заново.');
+            resetCaptcha();
+          }
+        };
+        qBox.appendChild(btn);
+      });
+    }
+
+    // Submit Registration
+    document.getElementById('submitRegisterBtn').onclick = () => {
+      const username = regUsernameInput.value.trim();
+      const password = document.getElementById('regPassword').value.trim();
+
+      if (!username || !password) return alert('Заполни все поля!');
+      if (!isUsernameValid) return alert('Никнейм занят или недопустим!');
+      if (!isCaptchaPassed) return alert('Пройди тест на бота!');
+
+      const now = new Date();
+      const regDateFormatted = `${String(now.getDate()).padStart(2, '0')}.${String(now.getMonth() + 1).padStart(2, '0')}.${now.getFullYear()}`;
+
+      const newUser = {
+        id: registeredUsers.length + 1,
+        username,
+        password,
+        role: 'user',
+        regDate: regDateFormatted,
+        avatar: DEFAULT_AVATAR
+      };
+
+      registeredUsers.push(newUser);
+      setActiveSession(username);
+      currentUser = newUser;
+      updateNavAuth();
+
+      closeModal(registerModal);
+      alert(`🎉 Успешная регистрация! Добро пожаловать, ${username} (Твой ID: #${newUser.id})!`);
+      renderCards();
+    };
+
+    // Submit Login with Session Check
+    document.getElementById('submitLoginBtn').onclick = () => {
+      const username = document.getElementById('loginUsername').value.trim();
+      const password = document.getElementById('loginPassword').value.trim();
+
+      const found = registeredUsers.find(u => u.username.toLowerCase() === username.toLowerCase() && u.password === password);
+
+      if (found) {
+        // Check if user is logged in on another device/tab
+        if (isUserActiveElsewhere(found.username)) {
+          return alert('⛔ ОШИБКА ДОСТУПА: В этот аккаунт уже вошли с другого устройства или вкладки! Сначала выйдите из него там.');
+        }
+
+        setActiveSession(found.username);
+        currentUser = found;
+        updateNavAuth();
+        closeModal(loginModal);
+        alert(`С возвращением, ${found.username}!`);
+        renderCards();
+      } else {
+        alert('❌ Неверный никнейм или пароль!');
+      }
+    };
+
+    // ========================================================
+    // 🗺️ MAPS DATA
+    // ========================================================
+    let mapsData = [
+      {
+        id: 1,
+        title: "Победи Сасавота 3D",
+        author: "StevePro",
+        badge: "Хардкор",
+        desc: "Легендарная карта паркур с сюжетом!",
+        deleted: false,
+        images: ["https://picsum.photos/600/350?random=1", "https://picsum.photos/600/350?random=2"],
+        reviews: [
+          { name: "sasavot", stars: 5, text: "Самая лучшая карта!" }
+        ]
+      },
+      {
+        id: 2,
+        title: "Побег от Нарека",
+        author: "tw1zn129",
+        badge: "Средняя",
+        desc: "Нужно сбежать из подвала за 5 минут.",
+        deleted: false,
+        images: ["https://picsum.photos/600/350?random=3"],
+        reviews: [
+          { name: "rostikfacekid", stars: 4, text: "Прикольно, но короткая" }
+        ]
+      }
+    ];
+
+    let activeMapId = null;
+    let currentImageIndex = 0;
+    let currentRating = 0;
+
+    function getAverageRating(map) {
+      if (!map.reviews || map.reviews.length === 0) return 0;
+      const sum = map.reviews.reduce((acc, r) => acc + r.stars, 0);
+      return (sum / map.reviews.length);
+    }
+
+    const cardsContainer = document.getElementById('cardsContainer');
+    const totalMapsCount = document.getElementById('totalMapsCount');
+    const totalEvaluatedCount = document.getElementById('totalEvaluatedCount');
+    const countAllTab = document.getElementById('countAllTab');
+
+    function renderCards() {
+      cardsContainer.innerHTML = '';
+
+      const activeMaps = mapsData.filter(m => !m.deleted);
+      activeMaps.sort((a, b) => getAverageRating(b) - getAverageRating(a));
+
+      mapsData.forEach(m => m.topRank = null);
+      if (activeMaps[0] && getAverageRating(activeMaps[0]) > 0) activeMaps[0].topRank = 1;
+      if (activeMaps[1] && getAverageRating(activeMaps[1]) > 0) activeMaps[1].topRank = 2;
+      if (activeMaps[2] && getAverageRating(activeMaps[2]) > 0) activeMaps[2].topRank = 3;
+
+      let displayMaps = [...mapsData];
+
+      if (currentFilterMode === 'top') {
+        displayMaps = displayMaps
+          .filter(m => !m.deleted && getAverageRating(m) > 0)
+          .sort((a, b) => getAverageRating(b) - getAverageRating(a));
+      }
+
+      displayMaps.forEach(map => {
+        const avgScore = getAverageRating(map);
+        const card = document.createElement('div');
+        card.className = `map-card ${map.deleted ? 'is-deleted' : ''}`;
+        
+        let topBadgeHtml = '';
+        if (map.topRank === 1) topBadgeHtml = `<div class="top-badge top-badge-1">🥇 ТОП 1</div>`;
+        else if (map.topRank === 2) topBadgeHtml = `<div class="top-badge top-badge-2">🥈 ТОП 2</div>`;
+        else if (map.topRank === 3) topBadgeHtml = `<div class="top-badge top-badge-3">🥉 ТОП 3</div>`;
+
+        let deleteBtnHtml = '';
+        if (currentUser && (currentUser.role === 'admin' || currentUser.role === 'mod') && !map.deleted) {
+          deleteBtnHtml = `<button class="mc-btn mc-btn-red" onclick="event.stopPropagation(); deleteMap(${map.id})">🗑️ Удалить</button>`;
+        }
+
+        if (!map.deleted) {
+          card.onclick = () => openMapModal(map.id);
+        }
+
+        card.innerHTML = `
+          ${map.deleted ? '<div class="deleted-overlay-tag">[ УДАЛЕНО ]</div>' : ''}
+          <div class="map-preview" style="background-image: url('${map.images[0]}');">
+            ${topBadgeHtml}
+          </div>
+          <div class="map-details">
+            <div class="map-meta">
+              <span class="map-author clickable-nick" onclick="event.stopPropagation(); openProfile('${escapeHtml(map.author)}')">${escapeHtml(map.author)}</span>
+              <span class="map-badge">${escapeHtml(map.badge)}</span>
+            </div>
+            <div class="map-card-title">${escapeHtml(map.title)}</div>
+            <div class="map-card-desc">${escapeHtml(map.desc)}</div>
+
+            <div class="map-card-footer">
+              <span class="map-rating-score">${avgScore > 0 ? '★ ' + avgScore.toFixed(1) : '☆ Нет оценок'}</span>
+              ${deleteBtnHtml}
+            </div>
+          </div>
+        `;
+        cardsContainer.appendChild(card);
+      });
+
+      totalMapsCount.innerText = mapsData.length;
+      countAllTab.innerText = mapsData.length;
+      totalEvaluatedCount.innerText = mapsData.filter(m => m.reviews.length > 0).length;
+    }
+
+    // Navigation and Filters
+    document.getElementById('tabAllBtn').onclick = () => {
+      currentFilterMode = 'all';
+      document.getElementById('cardsSectionTitle').innerText = '🌿 Все карты';
+      renderCards();
+    };
+
+    document.getElementById('navAllMapsBtn').onclick = () => {
+      currentFilterMode = 'all';
+      document.getElementById('cardsSectionTitle').innerText = '🌿 Все карты';
+      renderCards();
+    };
+
+    document.getElementById('tabTopBtn').onclick = () => {
+      currentFilterMode = 'top';
+      document.getElementById('cardsSectionTitle').innerText = '🏆 Рейтинг ТОП Карт';
+      renderCards();
+    };
+
+    document.getElementById('navTopMapsBtn').onclick = () => {
+      currentFilterMode = 'top';
+      document.getElementById('cardsSectionTitle').innerText = '🏆 Рейтинг ТОП Карт';
+      renderCards();
+    };
+
+    document.getElementById('logoBtn').onclick = () => {
+      currentFilterMode = 'all';
+      renderCards();
+    };
+
+    function openMapModal(id) {
+      activeMapId = id;
+      const map = mapsData.find(m => m.id === id);
+      if (!map || map.deleted) return;
+
+      document.getElementById('modalMapTitle').innerText = map.title;
+      document.getElementById('modalMapSub').innerText = `Создатель: ${map.author} | Сложность: ${map.badge}`;
+
+      if (currentUser) {
+        document.getElementById('reviewerName').value = currentUser.username;
+      }
+
+      const modalAdminActions = document.getElementById('modalAdminActions');
+      if (currentUser && (currentUser.role === 'admin' || currentUser.role === 'mod')) {
+        modalAdminActions.style.display = 'block';
+        document.getElementById('modalDeleteMapBtn').onclick = () => deleteMap(map.id);
+      } else {
+        modalAdminActions.style.display = 'none';
+      }
+
+      currentImageIndex = 0;
+      updateSlider(map);
+      renderReviews(map);
+      openModal(mapModal);
+    }
+
+    function updateSlider(map) {
+      document.getElementById('sliderImg').src = map.images[currentImageIndex];
+      document.getElementById('sliderCounter').innerText = `${currentImageIndex + 1} / ${map.images.length}`;
+    }
+
+    document.getElementById('prevImgBtn').onclick = () => {
+      const map = mapsData.find(m => m.id === activeMapId);
+      if (!map) return;
+      currentImageIndex = (currentImageIndex - 1 + map.images.length) % map.images.length;
+      updateSlider(map);
+    };
+
+    document.getElementById('nextImgBtn').onclick = () => {
+      const map = mapsData.find(m => m.id === activeMapId);
+      if (!map) return;
+      currentImageIndex = (currentImageIndex + 1) % map.images.length;
+      updateSlider(map);
+    };
+
+    function renderReviews(map) {
+      const reviewsList = document.getElementById('reviewsList');
+      reviewsList.innerHTML = '';
+      if (!map.reviews || map.reviews.length === 0) {
+        reviewsList.innerHTML = '<div style="font-size: 11px; color: #666; font-style: italic;">Пока нет отзывов...</div>';
+        return;
+      }
+
+      map.reviews.forEach(rev => {
+        const item = document.createElement('div');
+        item.className = 'review-item';
+        const starStr = '★'.repeat(rev.stars) + '☆'.repeat(5 - rev.stars);
+        item.innerHTML = `
+          <div class="review-header">
+            <span class="review-user clickable-nick" onclick="openProfile('${escapeHtml(rev.name)}')">${escapeHtml(rev.name)}</span>
+            <span class="review-stars">${starStr}</span>
+          </div>
+          <div class="review-body">${escapeHtml(rev.text)}</div>
+        `;
+        reviewsList.appendChild(item);
+      });
+    }
+
+    // Rating Stars
+    const stars = document.querySelectorAll('.star');
+    stars.forEach(star => {
+      star.addEventListener('mouseover', () => highlightStars(parseInt(star.dataset.value), 'hover'));
+      star.addEventListener('mouseout', () => clearHighlights('hover'));
+      star.addEventListener('click', () => {
+        currentRating = parseInt(star.dataset.value);
+        highlightStars(currentRating, 'active');
+      });
+    });
+
+    function highlightStars(count, className) {
+      stars.forEach(s => {
+        if (parseInt(s.dataset.value) <= count) s.classList.add(className);
+        else s.classList.remove(className);
+      });
+    }
+    function clearHighlights(className) { stars.forEach(s => s.classList.remove(className)); }
+
+    // Submit Review
+    document.getElementById('submitReviewBtn').onclick = () => {
+      const name = document.getElementById('reviewerName').value.trim();
+      const text = document.getElementById('reviewerText').value.trim();
+
+      if (!name || !text) return alert('Введи ник и отзыв!');
+      if (currentRating === 0) return alert('Выбери оценку звёздами!');
+
+      if (checkProfanity(name) || checkProfanity(text)) {
+        alert('⛔ ОШИБКА: Обнаружены запрещенные слова!');
+        return;
+      }
+
+      const map = mapsData.find(m => m.id === activeMapId);
+      if (map) {
+        map.reviews.unshift({ name, stars: currentRating, text });
+        renderReviews(map);
+        renderCards();
+        document.getElementById('reviewerText').value = '';
+      }
+    };
+
+    // Submit New Map
+    document.getElementById('submitNewMapBtn').onclick = () => {
+      const title = document.getElementById('newMapTitle').value.trim();
+      const author = currentUser ? currentUser.username : "Аноним";
+      const badge = document.getElementById('newMapBadge').value;
+      const desc = document.getElementById('newMapDesc').value.trim();
+
+      const coverFile = document.getElementById('coverFileInput').files[0];
+      const galleryFiles = Array.from(document.getElementById('galleryFileInput').files).slice(0, 5);
+
+      if (!title || !desc) return alert('Заполни все текстовые поля!');
+
+      const isProfane = checkProfanity(title) || checkProfanity(desc);
+
+      let imagesArray = [];
+      if (coverFile) {
+        imagesArray.push(URL.createObjectURL(coverFile));
+      } else {
+        imagesArray.push(`https://picsum.photos/600/350?random=${Math.floor(Math.random() * 100)}`);
+      }
+
+      if (galleryFiles.length > 0) {
+        galleryFiles.forEach(file => imagesArray.push(URL.createObjectURL(file)));
+      }
+
+      const newMap = {
+        id: Date.now(),
+        title: isProfane ? "[Заблокировано]" : title,
+        author,
+        badge,
+        desc: isProfane ? "Карта заблокирована авто-модератором." : desc,
+        deleted: isProfane,
+        images: imagesArray,
+        reviews: []
+      };
+
+      mapsData.push(newMap);
+      renderCards();
+
+      document.getElementById('newMapTitle').value = '';
+      document.getElementById('newMapDesc').value = '';
+      document.getElementById('coverFileInput').value = '';
+      document.getElementById('galleryFileInput').value = '';
+
+      closeModal(addMapModal);
+    };
+
+    function escapeHtml(str) {
+      return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+
+    // Init App
+    updateNavAuth();
+    renderCards();
+  </script>
+</body>
+</html>
