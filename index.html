@@ -737,13 +737,10 @@
     // ========================================================
     // 🌐 CLOUD & STORAGE SYSTEM (npoint.io integration)
     // ========================================================
-    // Бесплатное облачное хранилище для синхронизации всех игроков.
-    // Твой уникальный ID базы данных для GitHub Pages:
-    const CLOUD_BIN_URL = 'https://api.npoint.io/652f1e1a8b9f77626964'; // Замени при необходимости на свою ссылку npoint.io
+    const CLOUD_BIN_URL = 'https://api.npoint.io/652f1e1a8b9f77626964';
 
     const DEFAULT_AVATAR = 'https://mc-heads.net/avatar/Steve/64';
 
-    // ЗАЩИЩЕННЫЙ АДМИН АККАУНТ С НАДЕЖНЫМ ПАРОЛЕМ
     const INITIAL_USERS = [
       { id: 1, username: 'sasavot', password: 'SuperSecretAdminPassword123!', role: 'admin', regDate: '01.01.2026, 12:00', avatar: 'https://mc-heads.net/avatar/sasavot/64', lastActive: Date.now() },
       { id: 2, username: 'tw1zn129', password: '123', role: 'mod', regDate: '02.01.2026, 15:30', avatar: 'https://mc-heads.net/avatar/tw1zn129/64', lastActive: Date.now() },
@@ -755,7 +752,6 @@
     let currentUser = null;
     let currentFilterMode = 'all';
 
-    // Загрузка данных из облака или резервного хранилища
     async function loadCloudData() {
       try {
         const response = await fetch(CLOUD_BIN_URL);
@@ -777,16 +773,14 @@
       updateFooterStats();
     }
 
-    // Сохранение данных в облако и локально
     async function saveCloudData() {
-      // Сохраняем локально для скорости
       localStorage.setItem('sasavot_users_v3', JSON.stringify(registeredUsers));
       localStorage.setItem('sasavot_maps_v3', JSON.stringify(mapsData));
 
-      // Отправляем в облако, чтобы другие устройства видели изменения
+      // ИСПРАВЛЕНО: Метод PUT вместо POST для npoint.io
       try {
         await fetch(CLOUD_BIN_URL, {
-          method: 'POST',
+          method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ users: registeredUsers, maps: mapsData })
         });
@@ -816,7 +810,6 @@
       updateFooterStats();
     }
 
-    // Периодическое обновление данных (каждые 5 секунд подгружаем активность и новые карты от других игроков)
     setInterval(async () => {
       if (currentUser) {
         const me = registeredUsers.find(u => u.username.toLowerCase() === currentUser.username.toLowerCase());
@@ -842,7 +835,6 @@
     function updateFooterStats() {
       const totalReg = registeredUsers.length;
       const now = Date.now();
-      // Считаем онлайн те устройства, которые проявляли активность за последние 30 секунд
       const onlineCount = registeredUsers.filter(u => u.lastActive && (now - u.lastActive < 30000)).length;
       const offlineCount = Math.max(0, totalReg - onlineCount);
 
@@ -949,7 +941,6 @@
       updateFooterStats();
     }
 
-    // Modal Controls
     const loginModal = document.getElementById('loginModal');
     const registerModal = document.getElementById('registerModal');
     const mapModal = document.getElementById('mapModal');
@@ -1500,7 +1491,6 @@
 
       const isProfane = checkProfanity(title) || checkProfanity(desc);
 
-      // Вспомогательная функция для конвертации файлов картинок в Base64 (чтобы они сохранялись в облаке для всех)
       const readFileAsBase64 = (file) => {
         return new Promise((resolve, reject) => {
           const reader = new FileReader();
@@ -1558,7 +1548,6 @@
       return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
     }
 
-    // Инициализация при старте
     loadCloudData();
   </script>
 </body>
