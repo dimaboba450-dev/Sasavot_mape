@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SASVOT.MAP - Ultimate Edition</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Rubik:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background-color: #120e0b; color: #e2d9cd; font-family: 'Rubik', sans-serif;
+      min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding-bottom: 20px;
+    }
+    h1, h2, h3, .mc-font { font-family: 'Press Start 2P', cursive; }
+
+    header {
+      width: 100%; background-color: #1b1612; border-bottom: 4px solid #7bc61a;
+      padding: 12px 25px; display: flex; justify-content: space-between; align-items: center;
+      box-shadow: 0 6px 0px #000; position: sticky; top: 0; z-index: 100;
+    }
+    .nav-left, .nav-right { display: flex; align-items: center; gap: 12px; }
+    .logo { font-family: 'Press Start 2P', cursive; color: #ffaa00; font-size: 14px; text-shadow: 2px 2px #000; margin-right: 10px; cursor: pointer; }
+    .nav-link { display: flex; align-items: center; gap: 6px; color: #b5ac9e; text-decoration: none; font-size: 10px; font-family: 'Press Start 2P', cursive; background: none; border: none; cursor: pointer; }
+    .nav-link:hover { color: #55ff55; }
+
+    .mc-btn {
+      background: #707070; border: 3px solid #000; box-shadow: inset -3px -3px 0px 0px #3b3b3b, inset 3px 3px 0px 0px #a8a8a8;
+      color: #fff; font-family: 'Press Start 2P', cursive; font-size: 9px; padding: 8px 10px; cursor: pointer;
+      text-shadow: 1px 1px 0px #000; display: inline-flex; align-items: center; gap: 6px; user-select: none;
+    }
+    .mc-btn:hover { background: #8b8b8b; }
+    .mc-btn:active { box-shadow: inset 3px 3px 0px 0px #2a2a2a; transform: translateY(1px); }
+    .mc-btn-green { background: #5b8731; box-shadow: inset -3px -3px 0px 0px #2a4113, inset 3px 3px 0px 0px #8ed147; }
+    .mc-btn-green:hover { background: #6fa23d; }
+    .mc-btn-red { background: #a82323; box-shadow: inset -3px -3px 0px 0px #5e1111, inset 3px 3px 0px 0px #e64c4c; }
+    .mc-btn-gold { background: #c68e17; box-shadow: inset -3px -3px 0px 0px #614305, inset 3px 3px 0px 0px #ffd054; color: #fff; }
+    .mc-btn-blue { background: #2c598e; box-shadow: inset -3px -3px 0px 0px #132a48, inset 3px 3px 0px 0px #538bd1; }
+
+    .user-badge { display: flex; align-items: center; background-color: #000; border: 2px solid #3d3529; padding: 5px 8px; font-size: 9px; font-family: 'Press Start 2P', cursive; gap: 8px; cursor: pointer; }
+    .user-badge:hover { border-color: #55ff55; }
+    .user-avatar-mini { width: 20px; height: 20px; border: 1px solid #fff; image-rendering: pixelated; object-fit: cover; }
+    .user-role-admin { background-color: #ff5555; color: #fff; padding: 2px 4px; font-size: 8px; }
+    .user-role-mod { background-color: #aa00aa; color: #fff; padding: 2px 4px; font-size: 8px; }
+    .user-role-user { background-color: #ffaa00; color: #000; padding: 2px 4px; font-size: 8px; }
+
+    .clickable-nick { cursor: pointer; text-decoration: underline; }
+    .clickable-nick:hover { color: #ffff55 !important; }
+
+    .container { width: 100%; max-width: 960px; padding: 30px 20px 10px 20px; display: flex; flex-direction: column; align-items: center; flex: 1; }
+    .challenge-tag { background-color: #aa0000; border: 2px solid #000; box-shadow: inset -2px -2px 0px #550000, inset 2px 2px 0px #ff5555; color: #ffffff; font-family: 'Press Start 2P', cursive; font-size: 11px; padding: 6px 14px; display: inline-flex; align-items: center; gap: 8px; }
+    .sub-tag-line { color: #8c8273; font-size: 12px; margin-top: 12px; font-family: 'Press Start 2P', cursive; text-align: center; }
+    .hero-title { font-family: 'Press Start 2P', cursive; text-align: center; margin: 25px 0 15px 0; line-height: 1.6; }
+    .hero-title .white { color: #ffffff; font-size: 26px; text-shadow: 3px 3px #000; display: block; }
+    .hero-title .green { color: #55ff55; font-size: 32px; text-shadow: 3px 3px #000; display: block; margin-top: 5px; }
+    .hero-description { color: #a69c8d; font-size: 13px; text-align: center; max-width: 520px; line-height: 1.5; margin-bottom: 30px; }
+
+    .judges-grid { display: flex; gap: 15px; width: 100%; justify-content: center; margin-bottom: 30px; }
+    .judge-card { background-color: #1d1813; border: 3px solid #000; box-shadow: inset -2px -2px 0px #100d0a, inset 2px 2px 0px #352c23; padding: 12px 14px; flex: 1; max-width: 280px; display: flex; align-items: flex-start; gap: 10px; }
+    .judge-icon { font-size: 20px; }
+    .judge-info { display: flex; flex-direction: column; gap: 4px; }
+    .judge-nickname { font-family: 'Press Start 2P', cursive; font-size: 11px; }
+    .red .judge-nickname { color: #ff5555; }
+    .purple .judge-nickname { color: #aa00aa; }
+    .cyan .judge-nickname { color: #55ffff; }
+    .judge-subname { color: #aaa; font-size: 11px; }
+    .judge-desc { color: #777; font-size: 10px; }
+
+    .stats-row { display: flex; gap: 50px; justify-content: center; align-items: center; margin-bottom: 35px; }
+    .stat-item { text-align: center; }
+    .stat-number { font-family: 'Press Start 2P', cursive; color: #ffaa00; font-size: 24px; text-shadow: 2px 2px #000; margin-bottom: 8px; }
+    .stat-label { color: #8c8273; font-size: 10px; font-family: 'Press Start 2P', cursive; }
+    .divider { width: 100%; height: 4px; background-color: #55ff55; box-shadow: 0 0 10px rgba(85, 255, 85, 0.5); margin-bottom: 25px; }
+
+    .section-title { width: 100%; font-family: 'Press Start 2P', cursive; font-size: 14px; color: #ffffff; margin-bottom: 15px; }
+    .tabs-row { width: 100%; display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+    .cards-container { width: 100%; display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; }
+
+    .map-card { background-color: #1c1712; border: 3px solid #000; box-shadow: inset -2px -2px 0px #0e0b09, inset 2px 2px 0px #382e24; cursor: pointer; position: relative; transition: transform 0.1s, border-color 0.2s; }
+    .map-card:hover { transform: translateY(-3px); border-color: #55ff55; }
+    .map-card.is-deleted { filter: grayscale(100%); opacity: 0.6; cursor: not-allowed; border-color: #aa0000 !important; }
+    .deleted-overlay-tag { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-12deg); background-color: #aa0000; border: 3px solid #000; box-shadow: inset -2px -2px 0px #550000, inset 2px 2px 0px #ff5555; color: #ffffff; font-family: 'Press Start 2P', cursive; font-size: 14px; padding: 10px 14px; text-shadow: 2px 2px #000; z-index: 10; pointer-events: none; white-space: nowrap; }
+
+    .map-preview { width: 100%; height: 140px; background-size: cover; background-position: center; border-bottom: 3px solid #000; position: relative; }
+    .map-details { padding: 12px; }
+    .map-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .map-author { color: #55ff55; font-family: 'Press Start 2P', cursive; font-size: 10px; }
+    .map-badge { background-color: #3b3123; border: 1px solid #000; color: #ffaa00; font-family: 'Press Start 2P', cursive; font-size: 8px; padding: 3px 5px; }
+    .map-card-title { color: #ffffff; font-family: 'Press Start 2P', cursive; font-size: 11px; margin-bottom: 8px; line-height: 1.3; }
+    .map-card-desc { color: #aaa; font-size: 11px; margin-bottom: 10px; }
+    .map-card-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #332a20; padding-top: 8px; margin-top: 6px; }
+    .map-rating-score { font-family: 'Press Start 2P', cursive; font-size: 10px; color: #ffaa00; }
+
+    .no-maps-notice { grid-column: 1 / -1; text-align: center; padding: 40px 20px; background: #1c1712; border: 3px solid #3d3529; font-family: 'Press Start 2P', cursive; font-size: 11px; color: #8c8273; line-height: 1.8; }
+
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: rgba(0, 0, 0, 0.85); display: none; justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(3px); }
+    .modal-overlay.active { display: flex; }
+    .mc-modal { background-color: #c6c6c6; width: 90%; max-width: 560px; padding: 16px; position: relative; border: 4px solid #000; box-shadow: inset -4px -4px 0px 0px #555555, inset 4px 4px 0px 0px #ffffff; color: #000; max-height: 90vh; overflow-y: auto; }
+    .mc-modal-large { max-width: 680px; }
+    .mc-modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 2px solid #555; padding-bottom: 8px; }
+    .mc-close-btn { background: #aa0000; border: 2px solid #000; box-shadow: inset -2px -2px 0px 0px #550000, inset 2px 2px 0px 0px #ff5555; color: #fff; font-family: 'Press Start 2P', cursive; font-size: 12px; width: 28px; height: 28px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .mc-close-btn:hover { background: #ff5555; }
+    .mc-title { font-family: 'Press Start 2P', cursive; font-size: 12px; color: #000; text-shadow: 1px 1px 0px #fff; }
+    .mc-subtitle { font-size: 11px; color: #333; margin-bottom: 12px; font-weight: bold; }
+
+    .mc-section { background: #8b8b8b; border: 2px solid #000; box-shadow: inset -2px -2px 0px 0px #ffffff, inset 2px 2px 0px 0px #373737; padding: 12px; margin-bottom: 12px; }
+    .mc-label { font-family: 'Press Start 2P', cursive; font-size: 9px; color: #ffff55; text-shadow: 1px 1px 0px #000; display: block; margin-bottom: 6px; }
+    .mc-input, .mc-textarea { width: 100%; background: #000; border: 2px solid #373737; box-shadow: inset 2px 2px 0px 0px #111; color: #fff; font-family: 'Rubik', sans-serif; padding: 8px; font-size: 12px; margin-bottom: 10px; outline: none; }
+    .mc-input-file { background: #373737; border: 2px solid #000; color: #fff; padding: 6px; font-size: 10px; width: 100%; margin-bottom: 10px; cursor: pointer; }
+
+    .profile-card-header { display: flex; gap: 20px; align-items: center; background: #000; padding: 16px; border: 3px solid #555; margin-bottom: 14px; }
+    .profile-avatar-large { width: 90px; height: 90px; border: 3px solid #ffaa00; image-rendering: pixelated; object-fit: cover; background-color: #222; }
+    .profile-info-box { display: flex; flex-direction: column; gap: 8px; color: #fff; flex: 1; }
+    .profile-nick { font-family: 'Press Start 2P', cursive; font-size: 16px; color: #55ff55; text-shadow: 2px 2px #000; }
+    .profile-row-item { font-size: 10px; display: flex; align-items: center; justify-content: space-between; font-family: 'Press Start 2P', cursive; border-bottom: 1px solid #373737; padding-bottom: 6px; margin-bottom: 4px; }
+    .profile-details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+    .profile-stat-box { background: #000; border: 2px solid #555; padding: 10px; text-align: center; }
+    .profile-stat-val { font-family: 'Press Start 2P', cursive; font-size: 16px; color: #ffaa00; margin-bottom: 4px; }
+    .profile-stat-lbl { font-family: 'Press Start 2P', cursive; font-size: 8px; color: #aaa; }
+
+    .slider-box { position: relative; width: 100%; height: 220px; background-color: #000; border: 2px solid #000; display: flex; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 8px; }
+    .slider-img { max-width: 100%; max-height: 100%; object-fit: contain; }
+    .slider-controls { display: flex; justify-content: space-between; align-items: center; background: #373737; padding: 6px; border: 2px solid #000; }
+    .slider-counter { font-family: 'Press Start 2P', cursive; font-size: 10px; color: #fff; }
+
+    .stars-container { display: flex; gap: 6px; margin-bottom: 10px; }
+    .star { font-size: 22px; color: #373737; cursor: pointer; user-select: none; }
+    .star.active, .star.hover { color: #ffaa00; }
+
+    .online-user-item { display: flex; align-items: center; justify-content: space-between; background: #000; border: 2px solid #333; padding: 8px 12px; margin-bottom: 6px; }
+    .online-user-left { display: flex; align-items: center; gap: 10px; }
+
+    footer { width: 100%; max-width: 960px; margin-top: auto; padding: 15px 20px; border-top: 2px dashed #3d3529; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+    .footer-stats-bar { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; font-family: 'Press Start 2P', cursive; font-size: 9px; color: #b5ac9e; background-color: #1b1612; border: 2px solid #3d3529; padding: 10px 16px; }
+    .footer-stat-item { display: flex; align-items: center; gap: 6px; }
+    .watermark { color: #3d3429; font-family: 'Press Start 2P', cursive; letter-spacing: 2px; font-size: 10px; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="nav-left">
+      <div class="logo" id="logoBtn">SASVOT.MAP</div>
+      <button class="nav-link" id="navAllMapsBtn"><span>🗺️</span> Все Карты</button>
+      <button class="nav-link" id="navTopMapsBtn"><span>🏆</span> Топ Карт</button>
+      <button class="mc-btn mc-btn-green" id="openOnlineModalBtn">🟢 Онлайн: <span id="headerOnlineCount">0</span></button>
+      <button class="mc-btn mc-btn-green" id="openAddMapModalBtn"><span>➕</span> Добавить карту</button>
+    </div>
+    <div class="nav-right" id="navAuthSection"></div>
+  </header>
+
+  <div class="container">
+    <div class="challenge-tag">🔥 141 - MAP CHALLENGE</div>
+    <div class="sub-tag-line">— Карты от подписчиков сасавота —</div>
+
+    <h1 class="hero-title">
+      <span class="white">Карты про</span>
+      <span class="green">Сасавота</span>
+    </h1>
+
+    <p class="hero-description">Подписчики создали карты в Minecraft с Глебом, кто же из них победит?</p>
+
+    <div class="judges-grid">
+      <div class="judge-card red">
+        <div class="judge-icon">🔥</div>
+        <div class="judge-info">
+          <div class="judge-nickname clickable-nick" onclick="openProfile('sasavot')">sasavot</div>
+          <div class="judge-subname">Глеб • Парень Нарека</div>
+          <div class="judge-desc">главный арбитр</div>
+        </div>
+      </div>
+      <div class="judge-card purple">
+        <div class="judge-icon">🐕</div>
+        <div class="judge-info">
+          <div class="judge-nickname clickable-nick" onclick="openProfile('tw1zn129')">tw1zn129</div>
+          <div class="judge-subname">Кирилл • 129</div>
+          <div class="judge-desc">модератор проекта</div>
+        </div>
+      </div>
+      <div class="judge-card cyan">
+        <div class="judge-icon">🛡️</div>
+        <div class="judge-info">
+          <div class="judge-nickname clickable-nick" onclick="openProfile('rostikfacekid')">rostikfacekid</div>
+          <div class="judge-subname">Ростик • Ляля</div>
+          <div class="judge-desc">судья бидов</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-item">
+        <div class="stat-number" id="totalMapsCount">0</div>
+        <div class="stat-label">карт в подборке</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">3</div>
+        <div class="stat-label">Судьи</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number" id="totalEvaluatedCount">0</div>
+        <div class="stat-label">с оценкой</div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="section-title" id="cardsSectionTitle">🌿 Все карты</div>
+
+    <div class="tabs-row">
+      <button class="mc-btn mc-btn-green" id="tabAllBtn">📁 Все карты (<span id="countAllTab">0</span>)</button>
+      <button class="mc-btn mc-btn-gold" id="tabTopBtn">🏆 Рейтинг ТОП-3</button>
+    </div>
+
+    <div class="cards-container" id="cardsContainer"></div>
+  </div>
+
+  <footer>
+    <div class="footer-stats-bar">
+      <div class="footer-stat-item">👥 Зарегистрировано: <span id="footerTotalReg" style="color: #ffaa00;">0</span></div>
+      <div class="footer-stat-item">🟢 Онлайн на сайте: <span id="footerOnlineCount" style="color: #55ff55;">0</span></div>
+      <div class="footer-stat-item">🔴 Оффлайн: <span id="footerOfflineCount" style="color: #ff5555;">0</span></div>
+    </div>
+    <div class="watermark">TEMADANCE</div>
+  </footer>
+
+  <div class="modal-overlay" id="profileModal">
+    <div class="mc-modal mc-modal-large">
+      <div class="mc-modal-header">
+        <div class="mc-title">👤 ПРОФИЛЬ ИГРОКА</div>
+        <button class="mc-close-btn">X</button>
+      </div>
+      <div class="profile-card-header">
+        <img id="profileAvatarImg" class="profile-avatar-large" src="" alt="Avatar">
+        <div class="profile-info-box">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div class="profile-nick" id="profileUsername">Steve</div>
+            <div id="profileOnlineBadge" style="font-family: 'Press Start 2P', cursive; font-size: 8px; padding: 4px 6px; background: #000; border: 1px solid #55ff55; color: #55ff55;">🟢 В СЕТИ</div>
+          </div>
+          <div class="profile-row-item"><span>АЙДИ:</span><span id="profileUserId" style="color: #ffaa00;">#1</span></div>
+          <div class="profile-row-item"><span>РОЛЬ:</span><span id="profileUserRole">[ ИГРОК ]</span></div>
+          <div class="profile-row-item"><span>РЕГИСТРАЦИЯ:</span><span id="profileRegDate" style="color: #fff;">01.01.2026</span></div>
+        </div>
+      </div>
+      <div class="profile-details-grid">
+        <div class="profile-stat-box"><div class="profile-stat-val" id="profileMapsCount">0</div><div class="profile-stat-lbl">КАРТ СОЗДАНО</div></div>
+        <div class="profile-stat-box"><div class="profile-stat-val" id="profileReviewsCount">0</div><div class="profile-stat-lbl">ОТЗЫВОВ</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="onlineModal">
+    <div class="mc-modal">
+      <div class="mc-modal-header"><div class="mc-title">🟢 ИГРОКИ В ОНЛАЙНЕ</div><button class="mc-close-btn">X</button></div>
+      <div class="mc-section" style="max-height: 250px; overflow-y: auto;" id="onlinePlayersList"></div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="loginModal">
+    <div class="mc-modal">
+      <div class="mc-modal-header"><div class="mc-title">ВХОД В АККАУНТ</div><button class="mc-close-btn">X</button></div>
+      <div class="mc-section">
+        <label class="mc-label">НИКНЕЙМ:</label>
+        <input type="text" id="loginUsername" class="mc-input">
+        <label class="mc-label">ПАРОЛЬ:</label>
+        <input type="password" id="loginPassword" class="mc-input">
+        <button class="mc-btn mc-btn-green" id="submitLoginBtn" style="width: 100%; justify-content: center; margin-top: 5px;">ВОЙТИ</button>
+      </div>
+      <div style="text-align: center;"><button class="mc-btn mc-btn-blue" id="switchToRegisterBtn">СОЗДАТЬ АККАУНТ</button></div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="registerModal">
+    <div class="mc-modal">
+      <div class="mc-modal-header"><div class="mc-title">РЕГИСТРАЦИЯ</div><button class="mc-close-btn">X</button></div>
+      <div class="mc-section">
+        <label class="mc-label">ПРИДУМАЙ НИК:</label>
+        <input type="text" id="regUsername" class="mc-input">
+        <label class="mc-label">ПРИДУМАЙ ПАРОЛЬ:</label>
+        <input type="password" id="regPassword" class="mc-input">
+        <button class="mc-btn mc-btn-green" id="submitRegisterBtn" style="width: 100%; justify-content: center;">ЗАРЕГИСТРИРОВАТЬСЯ</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ========================================================
+    // ⚙️ FIREBASE CONFIGURATION (ВСТАВЬТЕ ВАШИ ДАННЫЕ ИЗ FIREBASE CONSOLE)
+    // ========================================================
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT.firebaseapp.com",
+      databaseURL: "https://YOUR_PROJECT-default-rtdb.firebaseio.com",
+      projectId: "YOUR_PROJECT",
+      storageBucket: "YOUR_PROJECT.appspot.com",
+      messagingSenderId: "123456789",
+      appId: "1:123456789:web:abcdef"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    const DEFAULT_AVATAR = 'https://mc-heads.net/avatar/Steve/64';
+    let registeredUsers = {};
+    let mapsData = [];
+    let activeOnlineUsers = {};
+    let currentUser = null;
+    let myPresenceRef = null;
+
+    // СИНХРОНИЗАЦИЯ С FIREBASE В РЕАЛЬНОМ ВРЕМЕНИ
+    db.ref('users').on('value', snapshot => {
+      registeredUsers = snapshot.val() || {};
+      updateNavAuth();
+      updateFooterStats();
+    });
+
+    db.ref('maps').on('value', snapshot => {
+      const data = snapshot.val() || {};
+      mapsData = Object.values(data);
+      renderCards();
+    });
+
+    // СИСТЕМА ОНЛАЙНА В РЕАЛЬНОМ ВРЕМЕНИ
+    const connectedRef = db.ref('.info/connected');
+    connectedRef.on('value', snap => {
+      if (snap.val() === true) {
+        const mySessionId = db.ref('presence').push();
+        myPresenceRef = mySessionId;
+        
+        mySessionId.onDisconnect().remove();
+        mySessionId.set({
+          username: currentUser ? currentUser.username : 'Гость',
+          online: true
+        });
+      }
+    });
+
+    db.ref('presence').on('value', snapshot => {
+      activeOnlineUsers = snapshot.val() || {};
+      updateFooterStats();
+    });
+
+    function updateFooterStats() {
+      const usersList = Object.values(registeredUsers);
+      const onlineCount = Object.keys(activeOnlineUsers).length;
+      const totalReg = usersList.length;
+
+      document.getElementById('footerTotalReg').innerText = totalReg;
+      document.getElementById('footerOnlineCount').innerText = onlineCount;
+      document.getElementById('headerOnlineCount').innerText = onlineCount;
+      document.getElementById('footerOfflineCount').innerText = Math.max(0, totalReg - onlineCount);
+    }
+
+    // РЕГИСТРАЦИЯ
+    document.getElementById('submitRegisterBtn').onclick = () => {
+      const username = document.getElementById('regUsername').value.trim();
+      const password = document.getElementById('regPassword').value.trim();
+
+      if (!username || !password) return alert('Заполни все поля!');
+      const userKey = username.toLowerCase();
+
+      if (registeredUsers[userKey]) {
+        return alert('❌ Этот никнейм уже занят!');
+      }
+
+      const newUser = {
+        id: Object.keys(registeredUsers).length + 1,
+        username: username,
+        password: password,
+        role: 'user',
+        regDate: new Date().toLocaleDateString('ru-RU'),
+        avatar: DEFAULT_AVATAR
+      };
+
+      db.ref('users/' + userKey).set(newUser, (err) => {
+        if (err) return alert('Ошибка сохранения!');
+        currentUser = newUser;
+        localStorage.setItem('sasavot_current_user', username);
+        if (myPresenceRef) myPresenceRef.update({ username: username });
+        closeModal(document.getElementById('registerModal'));
+        alert(`🎉 Регистрация успешна, ${username}!`);
+      });
+    };
+
+    // ВХОД
+    document.getElementById('submitLoginBtn').onclick = () => {
+      const username = document.getElementById('loginUsername').value.trim();
+      const password = document.getElementById('loginPassword').value.trim();
+      const userKey = username.toLowerCase();
+
+      const user = registeredUsers[userKey];
+      if (user && user.password === password) {
+        currentUser = user;
+        localStorage.setItem('sasavot_current_user', username);
+        if (myPresenceRef) myPresenceRef.update({ username: username });
+        closeModal(document.getElementById('loginModal'));
+        alert(`С возвращением, ${username}!`);
+      } else {
+        alert('❌ Неверный логин или пароль!');
+      }
+    };
+
+    // АВТО-АВТОРИЗАЦИЯ
+    const savedName = localStorage.getItem('sasavot_current_user');
+    if (savedName) {
+      db.ref('users/' + savedName.toLowerCase()).once('value', snap => {
+        if (snap.exists()) {
+          currentUser = snap.val();
+          updateNavAuth();
+        }
+      });
+    }
+
+    function updateNavAuth() {
+      const nav = document.getElementById('navAuthSection');
+      if (currentUser) {
+        nav.innerHTML = `
+          <div class="user-badge" onclick="openProfile('${currentUser.username}')">
+            <img class="user-avatar-mini" src="${currentUser.avatar || DEFAULT_AVATAR}">
+            <span>${currentUser.username}</span>
+          </div>
+          <button class="mc-btn" id="logoutBtn">Выйти</button>
+        `;
+        document.getElementById('logoutBtn').onclick = () => {
+          localStorage.removeItem('sasavot_current_user');
+          currentUser = null;
+          updateNavAuth();
+        };
+      } else {
+        nav.innerHTML = `
+          <button class="mc-btn" onclick="openModal(document.getElementById('loginModal'))">Войти</button>
+          <button class="mc-btn mc-btn-green" onclick="openModal(document.getElementById('registerModal'))">Регистрация</button>
+        `;
+      }
+    }
+
+    function openProfile(username) {
+      const userKey = username.toLowerCase();
+      const user = registeredUsers[userKey];
+      if (!user) return alert('Игрок не найден!');
+
+      document.getElementById('profileUsername').innerText = user.username;
+      document.getElementById('profileUserId').innerText = `#${user.id}`;
+      document.getElementById('profileRegDate').innerText = user.regDate || '01.01.2026';
+      document.getElementById('profileAvatarImg').src = user.avatar || DEFAULT_AVATAR;
+
+      openModal(document.getElementById('profileModal'));
+    }
+
+    function renderCards() {
+      const container = document.getElementById('cardsContainer');
+      container.innerHTML = '';
+      if (mapsData.length === 0) {
+        container.innerHTML = `<div class="no-maps-notice">📌 НА САЙТЕ ПОКА НЕТ ДОБАВЛЕННЫХ КАРТ.</div>`;
+        return;
+      }
+      mapsData.forEach(map => {
+        const card = document.createElement('div');
+        card.className = 'map-card';
+        card.innerHTML = `
+          <div class="map-preview" style="background-image: url('${map.images ? map.images[0] : ''}');"></div>
+          <div class="map-details">
+            <div class="map-meta"><span class="map-author">${map.author}</span></div>
+            <div class="map-card-title">${map.title}</div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function openModal(modal) { modal.classList.add('active'); }
+    function closeModal(modal) { modal.classList.remove('active'); }
+    document.querySelectorAll('.mc-close-btn').forEach(b => b.onclick = () => closeModal(b.parentElement.parentElement));
+
+    document.getElementById('openOnlineModalBtn').onclick = () => {
+      const box = document.getElementById('onlinePlayersList');
+      const list = Object.values(activeOnlineUsers);
+      box.innerHTML = list.map(u => `
+        <div class="online-user-item">
+          <span style="font-family: 'Press Start 2P', cursive; font-size: 10px; color: #55ff55;">${u.username}</span>
+          <span style="font-size: 8px; color: #55ff55;">🟢 В СЕТИ</span>
+        </div>
+      `).join('');
+      openModal(document.getElementById('onlineModal'));
+    };
+  </script>
+</body>
+</html>
